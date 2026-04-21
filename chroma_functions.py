@@ -1,6 +1,9 @@
 import chromadb
 from chromadb.errors import NotFoundError
 from typing import List
+from uuid import uuid4
+
+from embed import EmbeddingRecord
 
 
 def list_collections() -> List[str]:
@@ -34,3 +37,21 @@ def count_collection(name: str) -> int:
         raise
 
     return collection.count()
+
+
+def add_data(collection: str, data: List[EmbeddingRecord]) -> None:
+    if not data:
+        return
+
+    client = chromadb.PersistentClient()
+
+    try:
+        target_collection = client.get_collection(name=collection)
+    except NotFoundError:
+        raise
+
+    target_collection.add(
+        ids=[str(uuid4()) for _ in data],
+        documents=[record["text"] for record in data],
+        embeddings=[record["embedding"] for record in data],
+    )

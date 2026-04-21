@@ -1,14 +1,20 @@
 from __future__ import annotations
 
-from chromadb.errors import NotFoundError, InternalError
+from chromadb.errors import InternalError, NotFoundError
+from dotenv import load_dotenv
+
 from chroma_functions import (
+    add_data,
     count_collection,
     create_collection,
     delete_collection,
     list_collections,
 )
-
+from chunk_functions import chunk_file
 from cli_parser import build_parser
+from embed import embed
+
+load_dotenv()
 
 
 def main() -> int:
@@ -55,6 +61,22 @@ def main() -> int:
             return 1
 
         print(count)
+
+        return 0
+
+    if args.command in {"add-data", "ad"}:
+        try:
+            chunks = chunk_file(args.file)
+            embeddings = embed(chunks)
+            add_data(args.collection, embeddings)
+        except NotFoundError:
+            print(f"Collection '{args.collection}' does not exist.")
+            return 1
+        except FileNotFoundError:
+            print(f"The file {args.file} was not found.")
+            return 1
+
+        print(f"Added {len(embeddings)} records to collection '{args.collection}'.")
 
         return 0
 

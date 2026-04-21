@@ -32,4 +32,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     count_parser.add_argument("name", help="Name of the collection to count.")
 
+    add_parser = subparsers.add_parser(
+        "add-data",
+        aliases=["ad"],
+        help="Chunk, embed, and add a file to a collection in the local Chroma database.",
+    )
+    add_parser.add_argument("collection", help="Name of the target collection.")
+    add_parser.add_argument("file", help="Path to the file to chunk and add to the collection.")
+
     return parser
