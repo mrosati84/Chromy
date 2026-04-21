@@ -8,6 +8,8 @@ from dataclasses import dataclass
 class ArgumentSpec:
     name: str
     help: str
+    required: bool = False
+    metavar: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -62,6 +64,20 @@ COMMAND_SPECS: tuple[CommandSpec, ...] = (
             ArgumentSpec("query_text", "The text to query."),
         ),
     ),
+    CommandSpec(
+        name="delete",
+        aliases=("del",),
+        help="Delete records from a collection using a metadata filter.",
+        arguments=(
+            ArgumentSpec("collection", "Name of the target collection."),
+            ArgumentSpec(
+                "--where",
+                "Metadata filter in the format <condition>=<value>.",
+                required=True,
+                metavar="CONDITION=VALUE",
+            ),
+        ),
+    ),
 )
 
 
@@ -77,7 +93,15 @@ def _add_command(
     )
 
     for argument in command.arguments:
-        subparser.add_argument(argument.name, help=argument.help)
+        argument_kwargs: dict[str, object] = {"help": argument.help}
+
+        if argument.metavar is not None:
+            argument_kwargs["metavar"] = argument.metavar
+
+        if argument.name.startswith("-"):
+            argument_kwargs["required"] = argument.required
+
+        subparser.add_argument(argument.name, **argument_kwargs)
 
     subparser.set_defaults(command=command.name)
 

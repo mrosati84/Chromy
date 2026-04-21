@@ -9,7 +9,10 @@ from chromadb.errors import InternalError, NotFoundError
 from handlers.add_data import handle_add_data
 from handlers.count_collection import handle_count_collection
 from handlers.create_collection import handle_create_collection
-from handlers.delete_collection import handle_delete_collection
+from handlers.delete_collection import (
+    handle_delete_collection,
+    handle_delete_records,
+)
 from handlers.list_collections import handle_list_collections
 from handlers.query import handle_query
 
@@ -81,11 +84,25 @@ COMMANDS: dict[str, CommandConfig] = {
             ),
         ),
     ),
+    "delete": CommandConfig(
+        handler=handle_delete_records,
+        error_handlers=(
+            CliErrorHandler(
+                exception_type=NotFoundError,
+                message=lambda args: f"Collection '{args.collection}' does not exist.",
+            ),
+            CliErrorHandler(
+                exception_type=ValueError,
+                message=lambda args: str(args.error_message),
+            ),
+        ),
+    ),
 }
 
 
 def execute_command(args: Namespace) -> int:
     command = COMMANDS[args.command]
+    args.error_message = "An unexpected value was provided."
 
     try:
         return command.handler(args)

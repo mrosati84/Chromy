@@ -44,6 +44,13 @@ def delete_collection(name: str) -> None:
     client.delete_collection(name=name)
 
 
+def delete_data(collection_name: str, where: dict[str, str]) -> int:
+    _, collection = _get_client_and_collection(collection_name)
+    result = collection.delete(where=where)
+
+    return int(result.get("deleted", 0))
+
+
 def count_collection(collection_name: str) -> int:
     _, collection = _get_client_and_collection(collection_name)
 
