@@ -1,7 +1,8 @@
-import chromadb
-from chromadb.errors import NotFoundError
 from typing import List
 from uuid import uuid4
+
+import chromadb
+from chromadb.errors import NotFoundError
 
 from embed import EmbeddingRecord
 
@@ -55,3 +56,7 @@ def add_data(collection: str, data: List[EmbeddingRecord]) -> None:
         documents=[record["text"] for record in data],
         embeddings=[record["embedding"] for record in data],
     )
+
+
+def query_data(collection_name: str, texts: list[str]):
+    raise NotImplementedError()
