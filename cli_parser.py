@@ -28,25 +28,19 @@ COMMAND_SPECS: tuple[CommandSpec, ...] = (
         name="create-collection",
         aliases=("cc",),
         help="Create a collection in the local Chroma database.",
-        arguments=(
-            ArgumentSpec("collection", "Name of the collection to create."),
-        ),
+        arguments=(ArgumentSpec("collection", "Name of the collection to create."),),
     ),
     CommandSpec(
         name="delete-collection",
         aliases=("dc",),
         help="Delete a collection from the local Chroma database.",
-        arguments=(
-            ArgumentSpec("collection", "Name of the collection to delete."),
-        ),
+        arguments=(ArgumentSpec("collection", "Name of the collection to delete."),),
     ),
     CommandSpec(
         name="count",
         aliases=("co",),
         help="Count records in a collection from the local Chroma database.",
-        arguments=(
-            ArgumentSpec("collection", "Name of the collection to count."),
-        ),
+        arguments=(ArgumentSpec("collection", "Name of the collection to count."),),
     ),
     CommandSpec(
         name="add-data",
@@ -54,7 +48,9 @@ COMMAND_SPECS: tuple[CommandSpec, ...] = (
         help="Chunk, embed, and add a file to a collection in the local Chroma database.",
         arguments=(
             ArgumentSpec("collection", "Name of the target collection."),
-            ArgumentSpec("file", "Path to the file to chunk and add to the collection."),
+            ArgumentSpec(
+                "file", "Path to the file to chunk and add to the collection."
+            ),
         ),
     ),
     CommandSpec(
