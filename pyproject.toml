@@ -7,6 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "chromadb>=1.5.8",
     "openai>=2.32.0",
+    "pymupdf4llm>=1.27.2.2",
     "python-dotenv>=1.2.2",
     "semchunk>=4.0.0",
     "tiktoken>=0.12.0",
