@@ -9,6 +9,7 @@ from chroma_functions import (
     create_collection,
     delete_collection,
     list_collections,
+    query_data,
 )
 from chunk_functions import chunk_file
 from cli_parser import build_parser
@@ -77,6 +78,17 @@ def main() -> int:
             return 1
 
         print(f"Added {len(embeddings)} records to collection '{args.collection}'.")
+
+        return 0
+
+    if args.command in {"query", "q"}:
+        try:
+            result = query_data(args.collection, [args.texts])
+        except NotFoundError:
+            print(f"Collection '{args.collection}' does not exist.")
+            return 1
+
+        print(result)
 
         return 0
 
