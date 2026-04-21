@@ -25,6 +25,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     delete_parser.add_argument("name", help="Name of the collection to delete.")
 
-    # TODO add "count <name>" command.
+    count_parser = subparsers.add_parser(
+        "count",
+        aliases=["co"],
+        help="Count records in a collection from the local Chroma database.",
+    )
+    count_parser.add_argument("name", help="Name of the collection to count.")
 
     return parser

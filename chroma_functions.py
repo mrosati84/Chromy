@@ -1,4 +1,5 @@
 import chromadb
+from chromadb.errors import NotFoundError
 from typing import List
 
 
@@ -15,6 +16,7 @@ def list_collections() -> List[str]:
 def create_collection(name: str) -> str:
     client = chromadb.PersistentClient()
     collection = client.create_collection(name=name)
+
     return getattr(collection, "name", name)
 
 
@@ -24,7 +26,11 @@ def delete_collection(name: str) -> None:
 
 
 def count_collection(name: str) -> int:
-    # TODO Implement this method.
-    # The function must use the count method and return how many records are
-    # in the collection. It must handle non-existent collections.
-    raise NotImplemented()
+    client = chromadb.PersistentClient()
+
+    try:
+        collection = client.get_collection(name=name)
+    except NotFoundError:
+        raise
+
+    return collection.count()
