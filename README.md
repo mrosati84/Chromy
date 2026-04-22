@@ -1,4 +1,4 @@
-# chroma
+# Chromy
 
 A small command-line utility for working with a local Chroma database. It lets you create collections, ingest file contents as chunked embeddings, and run similarity queries against stored documents.
 
