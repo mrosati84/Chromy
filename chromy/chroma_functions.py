@@ -70,7 +70,8 @@ def add_data(
 
     _, collection = _get_client_and_collection(collection_name)
 
-    embeddings: list[Sequence[float]] = [record["embedding"] for record in data]
+    embeddings: list[Sequence[float]] = [record["embedding"]
+                                         for record in data]
 
     collection.add(
         ids=[str(uuid4()) for _ in data],
