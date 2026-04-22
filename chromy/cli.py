@@ -15,7 +15,7 @@ from chromy.handlers.delete_collection import (
 from chromy.handlers.list_collections import handle_list_collections
 from chromy.handlers.query import handle_query
 
-app = typer.Typer(help="Inspect local Chroma collections.")
+app = typer.Typer(help="Chromy, local RAG CLI based on Chromadb.")
 
 ExitCodeHandler = Callable[[], int]
 
