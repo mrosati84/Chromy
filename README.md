@@ -93,6 +93,26 @@ Run the test suite with pytest:
 uv run pytest -q
 ```
 
+## Development Checks
+
+Run Ruff linting:
+
+```bash
+uv run ruff check .
+```
+
+Check Ruff formatting:
+
+```bash
+uv run ruff format --check .
+```
+
+Run static type checking with mypy:
+
+```bash
+uv run mypy .
+```
+
 ## Commands
 
 ```text

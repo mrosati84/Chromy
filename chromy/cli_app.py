@@ -3,7 +3,7 @@ from __future__ import annotations
 from argparse import Namespace
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
-from typing import Generic, Protocol, TypeVar, assert_never
+from typing import Generic, TypeVar, assert_never
 
 from chromadb.errors import InternalError, NotFoundError
 
@@ -27,15 +27,17 @@ from chromy.handlers.delete_collection import (
 from chromy.handlers.list_collections import handle_list_collections
 from chromy.handlers.query import handle_query
 
-
 CommandT = TypeVar("CommandT", bound=CommandInput)
-CollectionCommandT = TypeVar("CollectionCommandT", bound="HasCollection")
+CollectionCommandT = TypeVar(
+    "CollectionCommandT",
+    DeleteCollectionInput,
+    CountCollectionInput,
+    AddDataInput,
+    QueryInput,
+    DeleteRecordsInput,
+)
 CommandHandler = Callable[[CommandT], int]
 ErrorMessageBuilder = Callable[[CommandT, Exception], str]
-
-
-class HasCollection(Protocol):
-    collection: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -93,20 +95,20 @@ def execute_command(args: Namespace) -> int:
             return _run_command(
                 command_input,
                 handle_delete_collection,
-                (_collection_not_found_handler(),),
+                (_collection_not_found_handler(DeleteCollectionInput),),
             )
         case CountCollectionInput():
             return _run_command(
                 command_input,
                 handle_count_collection,
-                (_collection_not_found_handler(),),
+                (_collection_not_found_handler(CountCollectionInput),),
             )
         case AddDataInput():
             return _run_command(
                 command_input,
                 handle_add_data,
                 (
-                    _collection_not_found_handler(),
+                    _collection_not_found_handler(AddDataInput),
                     CliErrorHandler(
                         exception_type=FileNotFoundError,
                         message=_file_not_found_message,
@@ -117,14 +119,14 @@ def execute_command(args: Namespace) -> int:
             return _run_command(
                 command_input,
                 handle_query,
-                (_collection_not_found_handler(),),
+                (_collection_not_found_handler(QueryInput),),
             )
         case DeleteRecordsInput():
             return _run_command(
                 command_input,
                 handle_delete_records,
                 (
-                    _collection_not_found_handler(),
+                    _collection_not_found_handler(DeleteRecordsInput),
                     CliErrorHandler(
                         exception_type=ValueError,
                         message=_exception_message,
@@ -157,14 +159,16 @@ def _collection_already_exists_message(
     return f"Collection '{command.collection}' already exists."
 
 
-def _collection_not_found_handler() -> CliErrorHandler[CollectionCommandT]:
+def _collection_not_found_handler(
+    _: type[CollectionCommandT],
+) -> CliErrorHandler[CollectionCommandT]:
     return CliErrorHandler(
         exception_type=NotFoundError,
         message=_collection_not_found_message,
     )
 
 
-def _collection_not_found_message(command: HasCollection, _: Exception) -> str:
+def _collection_not_found_message(command: CollectionCommandT, _: Exception) -> str:
     return f"Collection '{command.collection}' does not exist."
 
 

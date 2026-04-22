@@ -26,6 +26,51 @@ packages = ["chromy", "chromy.handlers"]
 
 [dependency-groups]
 dev = [
+    "mypy>=1.18.2",
     "nuitka[onefile]>=4.0.8",
     "pytest>=9.0.2",
+    "ruff>=0.14.8",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "B",
+    "E",
+    "F",
+    "I",
+    "SIM",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+[tool.mypy]
+python_version = "3.12"
+files = [
+    "chromy",
+    "tests",
+]
+strict = true
+warn_return_any = true
+warn_unused_ignores = true
+no_implicit_reexport = true
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+module = [
+    "chromadb.*",
+    "semchunk.*",
+]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "chromy.chunk_functions"
+disable_error_code = [
+    "attr-defined",
 ]

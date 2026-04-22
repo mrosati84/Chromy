@@ -8,15 +8,13 @@ def _parse_where_clause(where_clause: str) -> dict[str, str]:
     condition, separator, value = where_clause.partition("=")
 
     if separator == "":
-        raise ValueError(
-            "Invalid --where value. Expected <condition>=<value>.")
+        raise ValueError("Invalid --where value. Expected <condition>=<value>.")
 
     condition = condition.strip()
     value = value.strip()
 
     if not condition or not value:
-        raise ValueError(
-            "Invalid --where value. Expected <condition>=<value>.")
+        raise ValueError("Invalid --where value. Expected <condition>=<value>.")
 
     return {condition: value}
 

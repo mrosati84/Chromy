@@ -47,7 +47,9 @@ COMMAND_SPECS: tuple[CommandSpec, ...] = (
     CommandSpec(
         name="add-data",
         aliases=("ad",),
-        help="Chunk, embed, and add a file to a collection in the local Chroma database.",
+        help=(
+            "Chunk, embed, and add a file to a collection in the local Chroma database."
+        ),
         arguments=(
             ArgumentSpec("collection", "Name of the target collection."),
             ArgumentSpec(
@@ -93,15 +95,20 @@ def _add_command(
     )
 
     for argument in command.arguments:
-        argument_kwargs: dict[str, object] = {"help": argument.help}
-
-        if argument.metavar is not None:
-            argument_kwargs["metavar"] = argument.metavar
-
         if argument.name.startswith("-"):
-            argument_kwargs["required"] = argument.required
+            subparser.add_argument(
+                argument.name,
+                help=argument.help,
+                metavar=argument.metavar,
+                required=argument.required,
+            )
+            continue
 
-        subparser.add_argument(argument.name, **argument_kwargs)
+        subparser.add_argument(
+            argument.name,
+            help=argument.help,
+            metavar=argument.metavar,
+        )
 
     subparser.set_defaults(command=command.name)
 

@@ -26,13 +26,14 @@ from chromy.handlers.delete_collection import (
 from chromy.handlers.list_collections import handle_list_collections
 from chromy.handlers.query import handle_query
 
-
 CommandT = TypeVar("CommandT")
 
 
 class HandlerTests(unittest.TestCase):
     def test_list_collections_prints_empty_message(self) -> None:
-        with patch("chromy.handlers.list_collections.list_collections", return_value=[]):
+        with patch(
+            "chromy.handlers.list_collections.list_collections", return_value=[]
+        ):
             exit_code, output = _capture_output(
                 handle_list_collections,
                 ListCollectionsInput(),
@@ -133,8 +134,7 @@ class HandlerTests(unittest.TestCase):
         ) as delete_data:
             exit_code, output = _capture_output(
                 handle_delete_records,
-                DeleteRecordsInput(collection="notes",
-                                   where=" file_name = play.txt "),
+                DeleteRecordsInput(collection="notes", where=" file_name = play.txt "),
             )
 
         delete_data.assert_called_once_with("notes", {"file_name": "play.txt"})

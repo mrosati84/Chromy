@@ -1,14 +1,16 @@
-from typing import List, TypedDict
+from __future__ import annotations
+
+from typing import TypedDict
 
 from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
 
 
 class EmbeddingRecord(TypedDict):
     text: str
-    embedding: List[float]
+    embedding: list[float]
 
 
-def embed(chunks: List[str]) -> List[EmbeddingRecord]:
+def embed(chunks: list[str]) -> list[EmbeddingRecord]:
     if not chunks:
         return []
 
@@ -22,5 +24,5 @@ def embed(chunks: List[str]) -> List[EmbeddingRecord]:
                 embedding.tolist() if hasattr(embedding, "tolist") else list(embedding)
             ),
         }
-        for text, embedding in zip(chunks, embeddings)
+        for text, embedding in zip(chunks, embeddings, strict=False)
     ]

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from chromy.command_inputs import ListCollectionsInput
 from chromy.chroma_functions import list_collections
+from chromy.command_inputs import ListCollectionsInput
 from chromy.utilities import print_lines
 
 

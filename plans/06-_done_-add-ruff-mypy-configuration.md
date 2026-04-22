@@ -1,4 +1,4 @@
-# 6. Add Ruff and Mypy Configuration
+# 6. Add Ruff and Mypy Configuration [DONE]
 
 ## Summary
 

@@ -1,5 +1,6 @@
-from chromadb import QueryResult
 from collections.abc import Mapping
+
+from chromadb import QueryResult
 
 from chromy.chroma_functions import add_data, query_data
 from chromy.chunk_functions import chunk_file
