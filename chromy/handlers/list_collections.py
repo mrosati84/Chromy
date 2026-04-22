@@ -1,7 +1,7 @@
 from argparse import Namespace
 
-from chroma_functions import list_collections
-from utilities import print_lines
+from chromy.chroma_functions import list_collections
+from chromy.utilities import print_lines
 
 
 def handle_list_collections(_: Namespace) -> int:

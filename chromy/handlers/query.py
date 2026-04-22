@@ -1,6 +1,6 @@
 from argparse import Namespace
 
-from utilities import format_query_result, print_lines, run_query
+from chromy.utilities import format_query_result, print_lines, run_query
 
 
 def handle_query(args: Namespace) -> int:

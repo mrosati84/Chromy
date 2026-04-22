@@ -1,6 +1,6 @@
 from argparse import Namespace
 
-from chroma_functions import delete_collection, delete_data
+from chromy.chroma_functions import delete_collection, delete_data
 
 
 def _parse_where_clause(where_clause: str) -> dict[str, str]:

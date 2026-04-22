@@ -19,19 +19,10 @@ dependencies = [
 ]
 
 [project.scripts]
-chromy = "main:main"
+chromy = "chromy.main:main"
 
 [tool.setuptools]
-packages = ["handlers"]
-py-modules = [
-    "main",
-    "cli_app",
-    "cli_parser",
-    "chroma_functions",
-    "chunk_functions",
-    "embed",
-    "utilities",
-]
+packages = ["chromy", "chromy.handlers"]
 
 [dependency-groups]
 dev = ["nuitka[onefile]>=4.0.8"]

@@ -1,9 +1,9 @@
 from chromadb import QueryResult
 from collections.abc import Mapping
 
-from chroma_functions import add_data, query_data
-from chunk_functions import chunk_file
-from embed import embed
+from chromy.chroma_functions import add_data, query_data
+from chromy.chunk_functions import chunk_file
+from chromy.embed import embed
 
 
 def print_lines(lines: list[str]) -> None:

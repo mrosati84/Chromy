@@ -82,7 +82,7 @@ chromy --help
 You can also run it from the source tree without installing the tool:
 
 ```bash
-uv run python main.py --help
+uv run python -m chromy.main --help
 ```
 
 ## Commands

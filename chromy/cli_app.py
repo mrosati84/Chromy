@@ -6,15 +6,15 @@ from dataclasses import dataclass
 
 from chromadb.errors import InternalError, NotFoundError
 
-from handlers.add_data import handle_add_data
-from handlers.count_collection import handle_count_collection
-from handlers.create_collection import handle_create_collection
-from handlers.delete_collection import (
+from chromy.handlers.add_data import handle_add_data
+from chromy.handlers.count_collection import handle_count_collection
+from chromy.handlers.create_collection import handle_create_collection
+from chromy.handlers.delete_collection import (
     handle_delete_collection,
     handle_delete_records,
 )
-from handlers.list_collections import handle_list_collections
-from handlers.query import handle_query
+from chromy.handlers.list_collections import handle_list_collections
+from chromy.handlers.query import handle_query
 
 
 CommandHandler = Callable[[Namespace], int]

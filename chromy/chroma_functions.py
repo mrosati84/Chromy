@@ -6,7 +6,7 @@ from chromadb.api import ClientAPI
 from chromadb.api.types import QueryResult
 from chromadb.errors import NotFoundError
 
-from embed import EmbeddingRecord
+from chromy.embed import EmbeddingRecord
 
 
 def _get_client_and_collection(

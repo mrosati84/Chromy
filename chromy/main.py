@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from dotenv import load_dotenv
 
-from cli_app import execute_command
-from cli_parser import build_parser
+from chromy.cli_app import execute_command
+from chromy.cli_parser import build_parser
 
 
 def main() -> int:

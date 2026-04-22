@@ -1,6 +1,6 @@
 from argparse import Namespace
 
-from chroma_functions import create_collection
+from chromy.chroma_functions import create_collection
 
 
 def handle_create_collection(args: Namespace) -> int:

@@ -1,6 +1,6 @@
 from argparse import Namespace
 
-from utilities import ingest_file
+from chromy.utilities import ingest_file
 
 
 def handle_add_data(args: Namespace) -> int:
