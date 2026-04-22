@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "chromy"
-version = "1.0.0"
+version = "1.1.0"
 description = "Chromy is a minimal CLI RAG system based on Chromadb"
 readme = "README.md"
 requires-python = ">=3.12"
