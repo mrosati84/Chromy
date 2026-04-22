@@ -1,11 +1,22 @@
 from __future__ import annotations
 
 from argparse import Namespace
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
+from typing import Generic, Protocol, TypeVar, assert_never
 
 from chromadb.errors import InternalError, NotFoundError
 
+from chromy.command_inputs import (
+    AddDataInput,
+    CommandInput,
+    CountCollectionInput,
+    CreateCollectionInput,
+    DeleteCollectionInput,
+    DeleteRecordsInput,
+    ListCollectionsInput,
+    QueryInput,
+)
 from chromy.handlers.add_data import handle_add_data
 from chromy.handlers.count_collection import handle_count_collection
 from chromy.handlers.create_collection import handle_create_collection
@@ -17,98 +28,149 @@ from chromy.handlers.list_collections import handle_list_collections
 from chromy.handlers.query import handle_query
 
 
-CommandHandler = Callable[[Namespace], int]
-ErrorMessageBuilder = Callable[[Namespace], str]
+CommandT = TypeVar("CommandT", bound=CommandInput)
+CollectionCommandT = TypeVar("CollectionCommandT", bound="HasCollection")
+CommandHandler = Callable[[CommandT], int]
+ErrorMessageBuilder = Callable[[CommandT, Exception], str]
+
+
+class HasCollection(Protocol):
+    collection: str
 
 
 @dataclass(frozen=True, slots=True)
-class CliErrorHandler:
-    exception_type: type[BaseException]
-    message: ErrorMessageBuilder
+class CliErrorHandler(Generic[CommandT]):
+    exception_type: type[Exception]
+    message: ErrorMessageBuilder[CommandT]
 
 
-@dataclass(frozen=True, slots=True)
-class CommandConfig:
-    handler: CommandHandler
-    error_handlers: tuple[CliErrorHandler, ...] = ()
+def build_command_input(args: Namespace) -> CommandInput:
+    command = str(args.command)
 
-
-COMMANDS: dict[str, CommandConfig] = {
-    "list-collections": CommandConfig(handler=handle_list_collections),
-    "create-collection": CommandConfig(
-        handler=handle_create_collection,
-        error_handlers=(
-            CliErrorHandler(
-                exception_type=InternalError,
-                message=lambda args: f"Collection '{args.collection}' already exists.",
-            ),
-        ),
-    ),
-    "delete-collection": CommandConfig(
-        handler=handle_delete_collection,
-        error_handlers=(
-            CliErrorHandler(
-                exception_type=NotFoundError,
-                message=lambda args: f"Collection '{args.collection}' does not exist.",
-            ),
-        ),
-    ),
-    "count": CommandConfig(
-        handler=handle_count_collection,
-        error_handlers=(
-            CliErrorHandler(
-                exception_type=NotFoundError,
-                message=lambda args: f"Collection '{args.collection}' does not exist.",
-            ),
-        ),
-    ),
-    "add-data": CommandConfig(
-        handler=handle_add_data,
-        error_handlers=(
-            CliErrorHandler(
-                exception_type=NotFoundError,
-                message=lambda args: f"Collection '{args.collection}' does not exist.",
-            ),
-            CliErrorHandler(
-                exception_type=FileNotFoundError,
-                message=lambda args: f"The file {args.file} was not found.",
-            ),
-        ),
-    ),
-    "query": CommandConfig(
-        handler=handle_query,
-        error_handlers=(
-            CliErrorHandler(
-                exception_type=NotFoundError,
-                message=lambda args: f"Collection '{args.collection}' does not exist.",
-            ),
-        ),
-    ),
-    "delete": CommandConfig(
-        handler=handle_delete_records,
-        error_handlers=(
-            CliErrorHandler(
-                exception_type=NotFoundError,
-                message=lambda args: f"Collection '{args.collection}' does not exist.",
-            ),
-            CliErrorHandler(
-                exception_type=ValueError,
-                message=lambda args: str(args.error_message),
-            ),
-        ),
-    ),
-}
+    match command:
+        case "list-collections":
+            return ListCollectionsInput()
+        case "create-collection":
+            return CreateCollectionInput(collection=str(args.collection))
+        case "delete-collection":
+            return DeleteCollectionInput(collection=str(args.collection))
+        case "count":
+            return CountCollectionInput(collection=str(args.collection))
+        case "add-data":
+            return AddDataInput(collection=str(args.collection), file=str(args.file))
+        case "query":
+            return QueryInput(
+                collection=str(args.collection),
+                query_text=str(args.query_text),
+            )
+        case "delete":
+            return DeleteRecordsInput(
+                collection=str(args.collection),
+                where=str(args.where),
+            )
+        case _:
+            raise ValueError(f"Unknown command: {command}")
 
 
 def execute_command(args: Namespace) -> int:
-    command = COMMANDS[args.command]
-    args.error_message = "An unexpected value was provided."
+    command_input = build_command_input(args)
 
+    match command_input:
+        case ListCollectionsInput():
+            return _run_command(command_input, handle_list_collections)
+        case CreateCollectionInput():
+            return _run_command(
+                command_input,
+                handle_create_collection,
+                (
+                    CliErrorHandler(
+                        exception_type=InternalError,
+                        message=_collection_already_exists_message,
+                    ),
+                ),
+            )
+        case DeleteCollectionInput():
+            return _run_command(
+                command_input,
+                handle_delete_collection,
+                (_collection_not_found_handler(),),
+            )
+        case CountCollectionInput():
+            return _run_command(
+                command_input,
+                handle_count_collection,
+                (_collection_not_found_handler(),),
+            )
+        case AddDataInput():
+            return _run_command(
+                command_input,
+                handle_add_data,
+                (
+                    _collection_not_found_handler(),
+                    CliErrorHandler(
+                        exception_type=FileNotFoundError,
+                        message=_file_not_found_message,
+                    ),
+                ),
+            )
+        case QueryInput():
+            return _run_command(
+                command_input,
+                handle_query,
+                (_collection_not_found_handler(),),
+            )
+        case DeleteRecordsInput():
+            return _run_command(
+                command_input,
+                handle_delete_records,
+                (
+                    _collection_not_found_handler(),
+                    CliErrorHandler(
+                        exception_type=ValueError,
+                        message=_exception_message,
+                    ),
+                ),
+            )
+
+    assert_never(command_input)
+
+
+def _run_command(
+    command_input: CommandT,
+    handler: CommandHandler[CommandT],
+    error_handlers: Sequence[CliErrorHandler[CommandT]] = (),
+) -> int:
     try:
-        return command.handler(args)
-    except BaseException as exc:
-        for error_handler in command.error_handlers:
+        return handler(command_input)
+    except Exception as exc:
+        for error_handler in error_handlers:
             if isinstance(exc, error_handler.exception_type):
-                print(error_handler.message(args))
+                print(error_handler.message(command_input, exc))
                 return 1
         raise
+
+
+def _collection_already_exists_message(
+    command: CreateCollectionInput,
+    _: Exception,
+) -> str:
+    return f"Collection '{command.collection}' already exists."
+
+
+def _collection_not_found_handler() -> CliErrorHandler[CollectionCommandT]:
+    return CliErrorHandler(
+        exception_type=NotFoundError,
+        message=_collection_not_found_message,
+    )
+
+
+def _collection_not_found_message(command: HasCollection, _: Exception) -> str:
+    return f"Collection '{command.collection}' does not exist."
+
+
+def _file_not_found_message(command: AddDataInput, _: Exception) -> str:
+    return f"The file {command.file} was not found."
+
+
+def _exception_message(_: DeleteRecordsInput, exc: Exception) -> str:
+    return str(exc)

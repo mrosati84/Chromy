@@ -85,6 +85,14 @@ You can also run it from the source tree without installing the tool:
 uv run python -m chromy.main --help
 ```
 
+## Running Tests
+
+Run the test suite with pytest:
+
+```bash
+uv run pytest -q
+```
+
 ## Commands
 
 ```text

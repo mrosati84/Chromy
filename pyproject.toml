@@ -25,4 +25,7 @@ chromy = "chromy.main:main"
 packages = ["chromy", "chromy.handlers"]
 
 [dependency-groups]
-dev = ["nuitka[onefile]>=4.0.8"]
+dev = [
+    "nuitka[onefile]>=4.0.8",
+    "pytest>=9.0.2",
+]

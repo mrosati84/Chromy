@@ -1,4 +1,4 @@
-# 2. Replace `argparse.Namespace` Plumbing With Typed Command Inputs
+# 2. Replace `argparse.Namespace` Plumbing With Typed Command Inputs [DONE]
 
 ## Summary
 
@@ -24,6 +24,10 @@ Stop passing mutable `argparse.Namespace` objects into handlers. Convert parsed 
 - Add parser-to-command conversion tests for every command and alias.
 - Add handler unit tests that construct command dataclasses directly.
 - Verify invalid delete filters still produce the same user-facing error.
+- Test all commands to verify they still work:
+  - [creating, listing, deleting] collections
+  - [adding, deleting] documents to a collection (use [romeo_and_juliet.txt](romeo_and_juliet.txt))
+  - querying
 
 ## Assumptions
 
