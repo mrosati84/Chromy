@@ -17,7 +17,7 @@ A small command-line utility for working with a local Chroma database. It lets y
 
 ## Installation
 
-Using `uv`:
+For local development, install the project dependencies with `uv`:
 
 ```bash
 uv sync
@@ -31,9 +31,55 @@ source .venv/bin/activate
 pip install -e .
 ```
 
+## Build
+
+Build the source distribution and wheel with `uv`:
+
+```bash
+uv build
+```
+
+The build artifacts are written to `dist/`.
+
+## Install as a tool with uv
+
+The project exposes a `chromy` command through the Python packaging entrypoint.
+Install it as a standalone `uv` tool from the project directory:
+
+```bash
+uv tool install .
+```
+
+After installation, run the CLI directly:
+
+```bash
+chromy --help
+```
+
+To install from a built wheel instead:
+
+```bash
+uv build
+uv tool install dist/chromy-1.0.0-py3-none-any.whl
+```
+
+During development, install the tool in editable mode so changes in the working
+tree are picked up without reinstalling:
+
+```bash
+uv tool install --editable .
+```
+
 ## Running the CLI
 
-The project entrypoint is `main.py`.
+The project entrypoint is available as the `chromy` command after installing the
+tool:
+
+```bash
+chromy --help
+```
+
+You can also run it from the source tree without installing the tool:
 
 ```bash
 uv run python main.py --help
@@ -55,37 +101,37 @@ query | q <collection> <query_text>
 Create a collection:
 
 ```bash
-uv run python main.py create-collection notes
+chromy create-collection notes
 ```
 
 Add a file:
 
 ```bash
-uv run python main.py add-data notes ./docs/example.txt
+chromy add-data notes ./docs/example.txt
 ```
 
 Count stored records:
 
 ```bash
-uv run python main.py count notes
+chromy count notes
 ```
 
 Search the collection:
 
 ```bash
-uv run python main.py query notes "How do I configure this project?"
+chromy query notes "How do I configure this project?"
 ```
 
 List collections:
 
 ```bash
-uv run python main.py list-collections
+chromy list-collections
 ```
 
 Delete a collection:
 
 ```bash
-uv run python main.py delete-collection notes
+chromy delete-collection notes
 ```
 
 ## How ingestion works
