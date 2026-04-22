@@ -31,7 +31,6 @@ def _fail(message: str) -> None:
     raise typer.Exit(1)
 
 
-@app.command("lc", help="List all collections stored in the local Chroma database.")
 @app.command(
     "list-collections",
     help="List all collections stored in the local Chroma database.",
@@ -40,7 +39,6 @@ def list_collections() -> None:
     _run(handle_list_collections)
 
 
-@app.command("cc", help="Create a collection in the local Chroma database.")
 @app.command(
     "create-collection",
     help="Create a collection in the local Chroma database.",
@@ -57,7 +55,6 @@ def create_collection(
         _fail(f"Collection '{collection}' already exists.")
 
 
-@app.command("dc", help="Delete a collection from the local Chroma database.")
 @app.command(
     "delete-collection",
     help="Delete a collection from the local Chroma database.",
@@ -74,7 +71,6 @@ def delete_collection(
         _fail(f"Collection '{collection}' does not exist.")
 
 
-@app.command("co", help="Count records in a collection from the local Chroma database.")
 @app.command(
     "count",
     help="Count records in a collection from the local Chroma database.",
@@ -91,10 +87,6 @@ def count(
         _fail(f"Collection '{collection}' does not exist.")
 
 
-@app.command(
-    "ad",
-    help="Chunk, embed, and add a file to a collection in the local Chroma database.",
-)
 @app.command(
     "add-data",
     help="Chunk, embed, and add a file to a collection in the local Chroma database.",
@@ -117,7 +109,6 @@ def add_data(
         _fail(f"The file {file} was not found.")
 
 
-@app.command("q", help="Query a collection with the provided text.")
 @app.command("query", help="Query a collection with the provided text.")
 def query(
     collection: Annotated[
@@ -135,7 +126,6 @@ def query(
         _fail(f"Collection '{collection}' does not exist.")
 
 
-@app.command("del", help="Delete records from a collection using a metadata filter.")
 @app.command("delete", help="Delete records from a collection using a metadata filter.")
 def delete_records(
     collection: Annotated[

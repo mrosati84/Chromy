@@ -116,13 +116,13 @@ uv run mypy .
 ## Commands
 
 ```text
-list-collections | lc
-create-collection | cc <collection>
-delete-collection | dc <collection>
-count | co <collection>
-add-data | ad <collection> <file>
-query | q <collection> <query_text>
-delete | del <collection> --where <condition>=<value>
+list-collections
+create-collection <collection>
+delete-collection <collection>
+count <collection>
+add-data <collection> <file>
+query <collection> <query_text>
+delete <collection> --where <condition>=<value>
 ```
 
 ### Examples
