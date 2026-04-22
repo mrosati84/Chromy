@@ -1,4 +1,6 @@
-from collections.abc import Mapping
+from __future__ import annotations
+
+from collections.abc import Mapping, Sequence
 
 from chromadb import QueryResult
 
@@ -7,7 +9,7 @@ from chromy.chunk_functions import chunk_file
 from chromy.embed import embed
 
 
-def print_lines(lines: list[str]) -> None:
+def print_lines(lines: Sequence[str]) -> None:
     for line in lines:
         print(line)
 

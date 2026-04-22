@@ -3,6 +3,7 @@ from __future__ import annotations
 import io
 import unittest
 from argparse import Namespace
+from collections.abc import Sequence
 from contextlib import redirect_stdout
 
 from chromy.cli_app import build_command_input, execute_command
@@ -89,7 +90,7 @@ class BuildCommandInputTests(unittest.TestCase):
         self.assertFalse(hasattr(args, "error_message"))
 
 
-def _parse_input(argv: list[str]) -> object:
+def _parse_input(argv: Sequence[str]) -> object:
     return build_command_input(build_parser().parse_args(argv))
 
 

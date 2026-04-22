@@ -60,7 +60,11 @@ def count_collection(collection_name: str) -> int:
     return collection.count()
 
 
-def add_data(collection_name: str, data: list[EmbeddingRecord], file_name: str) -> None:
+def add_data(
+    collection_name: str,
+    data: Sequence[EmbeddingRecord],
+    file_name: str,
+) -> None:
     if not data:
         return
 
@@ -76,7 +80,7 @@ def add_data(collection_name: str, data: list[EmbeddingRecord], file_name: str) 
     )
 
 
-def query_data(collection_name: str, texts: list[str]) -> QueryResult:
+def query_data(collection_name: str, texts: Sequence[str]) -> QueryResult:
     if not texts:
         return {
             "ids": [],
@@ -91,4 +95,4 @@ def query_data(collection_name: str, texts: list[str]) -> QueryResult:
 
     _, collection = _get_client_and_collection(collection_name)
 
-    return collection.query(query_texts=texts)
+    return collection.query(query_texts=list(texts))
