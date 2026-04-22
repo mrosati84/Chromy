@@ -7,15 +7,6 @@ from contextlib import redirect_stdout
 from typing import TypeVar
 from unittest.mock import patch
 
-from chromy.command_inputs import (
-    AddDataInput,
-    CountCollectionInput,
-    CreateCollectionInput,
-    DeleteCollectionInput,
-    DeleteRecordsInput,
-    ListCollectionsInput,
-    QueryInput,
-)
 from chromy.handlers.add_data import handle_add_data
 from chromy.handlers.count_collection import handle_count_collection
 from chromy.handlers.create_collection import handle_create_collection
@@ -36,7 +27,6 @@ class HandlerTests(unittest.TestCase):
         ):
             exit_code, output = _capture_output(
                 handle_list_collections,
-                ListCollectionsInput(),
             )
 
         self.assertEqual(exit_code, 0)
@@ -49,7 +39,6 @@ class HandlerTests(unittest.TestCase):
         ):
             exit_code, output = _capture_output(
                 handle_list_collections,
-                ListCollectionsInput(),
             )
 
         self.assertEqual(exit_code, 0)
@@ -62,7 +51,7 @@ class HandlerTests(unittest.TestCase):
         ) as create_collection:
             exit_code, output = _capture_output(
                 handle_create_collection,
-                CreateCollectionInput(collection="notes"),
+                "notes",
             )
 
         create_collection.assert_called_once_with("notes")
@@ -73,7 +62,7 @@ class HandlerTests(unittest.TestCase):
         with patch("chromy.handlers.delete_collection.delete_collection") as delete:
             exit_code, output = _capture_output(
                 handle_delete_collection,
-                DeleteCollectionInput(collection="notes"),
+                "notes",
             )
 
         delete.assert_called_once_with("notes")
@@ -87,7 +76,7 @@ class HandlerTests(unittest.TestCase):
         ) as count:
             exit_code, output = _capture_output(
                 handle_count_collection,
-                CountCollectionInput(collection="notes"),
+                "notes",
             )
 
         count.assert_called_once_with("notes")
@@ -101,7 +90,8 @@ class HandlerTests(unittest.TestCase):
         ) as ingest_file:
             exit_code, output = _capture_output(
                 handle_add_data,
-                AddDataInput(collection="notes", file="romeo_and_juliet.txt"),
+                "notes",
+                "romeo_and_juliet.txt",
             )
 
         ingest_file.assert_called_once_with("notes", "romeo_and_juliet.txt")
@@ -119,7 +109,8 @@ class HandlerTests(unittest.TestCase):
         ):
             exit_code, output = _capture_output(
                 handle_query,
-                QueryInput(collection="notes", query_text="hello"),
+                "notes",
+                "hello",
             )
 
         run.assert_called_once_with("notes", "hello")
@@ -134,7 +125,8 @@ class HandlerTests(unittest.TestCase):
         ) as delete_data:
             exit_code, output = _capture_output(
                 handle_delete_records,
-                DeleteRecordsInput(collection="notes", where=" file_name = play.txt "),
+                "notes",
+                " file_name = play.txt ",
             )
 
         delete_data.assert_called_once_with("notes", {"file_name": "play.txt"})
@@ -149,19 +141,17 @@ class HandlerTests(unittest.TestCase):
             ValueError,
             "Invalid --where value. Expected <condition>=<value>.",
         ):
-            handle_delete_records(
-                DeleteRecordsInput(collection="notes", where="file_name")
-            )
+            handle_delete_records("notes", "file_name")
 
 
 def _capture_output(
-    handler: Callable[[CommandT], int],
-    command: CommandT,
+    handler: Callable[..., int],
+    *arguments: CommandT,
 ) -> tuple[int, str]:
     output = io.StringIO()
 
     with redirect_stdout(output):
-        exit_code = handler(command)
+        exit_code = handler(*arguments)
 
     return exit_code, output.getvalue()
 

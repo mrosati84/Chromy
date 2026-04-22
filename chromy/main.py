@@ -2,15 +2,13 @@ from __future__ import annotations
 
 from dotenv import load_dotenv
 
-from chromy.cli_app import execute_command
-from chromy.cli_parser import build_parser
+from chromy.cli import app
 
 
-def main() -> int:
+def main() -> None:
     load_dotenv()
-    args = build_parser().parse_args()
-    return execute_command(args)
+    app()
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    main()

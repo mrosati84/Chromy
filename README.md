@@ -122,6 +122,7 @@ delete-collection | dc <collection>
 count | co <collection>
 add-data | ad <collection> <file>
 query | q <collection> <query_text>
+delete | del <collection> --where <condition>=<value>
 ```
 
 ### Examples
@@ -160,6 +161,12 @@ Delete a collection:
 
 ```bash
 chromy delete-collection notes
+```
+
+Delete records by metadata:
+
+```bash
+chromy delete notes --where file_name=example.txt
 ```
 
 ## How ingestion works
