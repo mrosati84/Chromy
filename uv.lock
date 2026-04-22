@@ -210,39 +210,6 @@ wheels = [
 ]
 
 [[package]]
-name = "chroma"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "chromadb" },
-    { name = "openai" },
-    { name = "pymupdf4llm" },
-    { name = "python-dotenv" },
-    { name = "semchunk" },
-    { name = "tiktoken" },
-    { name = "transformers" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "nuitka", extra = ["onefile"] },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "chromadb", specifier = ">=1.5.8" },
-    { name = "openai", specifier = ">=2.32.0" },
-    { name = "pymupdf4llm", specifier = ">=1.27.2.2" },
-    { name = "python-dotenv", specifier = ">=1.2.2" },
-    { name = "semchunk", specifier = ">=4.0.0" },
-    { name = "tiktoken", specifier = ">=0.12.0" },
-    { name = "transformers", specifier = ">=5.5.4" },
-]
-
-[package.metadata.requires-dev]
-dev = [{ name = "nuitka", extras = ["onefile"], specifier = ">=4.0.8" }]
-
-[[package]]
 name = "chromadb"
 version = "1.5.8"
 source = { registry = "https://pypi.org/simple" }
@@ -283,6 +250,39 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/4d/45/53556edcbbd273c54b81e07c1b21c79f7209ab4edf9603f94babb4ecf4f6/chromadb-1.5.8-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9494f0cf734dcfd2976890f9e3a446fdd5ca565375ffebe0de388ce994ac1f5e", size = 23214104, upload-time = "2026-04-16T23:35:02.583Z" },
     { url = "https://files.pythonhosted.org/packages/5e/ea/d6df4e0718bde638563225c8690be110f53874d5b5fb74f347d9a7747a1f/chromadb-1.5.8-cp39-abi3-win_amd64.whl", hash = "sha256:b7490b26843c9851e1e9bb0333a1d584e5e77b5a49a78713424600af9b3a28e6", size = 23413244, upload-time = "2026-04-16T23:35:14.328Z" },
 ]
+
+[[package]]
+name = "chromy"
+version = "1.0.0"
+source = { editable = "." }
+dependencies = [
+    { name = "chromadb" },
+    { name = "openai" },
+    { name = "pymupdf4llm" },
+    { name = "python-dotenv" },
+    { name = "semchunk" },
+    { name = "tiktoken" },
+    { name = "transformers" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "nuitka", extra = ["onefile"] },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "chromadb", specifier = ">=1.5.8" },
+    { name = "openai", specifier = ">=2.32.0" },
+    { name = "pymupdf4llm", specifier = ">=1.27.2.2" },
+    { name = "python-dotenv", specifier = ">=1.2.2" },
+    { name = "semchunk", specifier = ">=4.0.0" },
+    { name = "tiktoken", specifier = ">=0.12.0" },
+    { name = "transformers", specifier = ">=5.5.4" },
+]
+
+[package.metadata.requires-dev]
+dev = [{ name = "nuitka", extras = ["onefile"], specifier = ">=4.0.8" }]
 
 [[package]]
 name = "click"
