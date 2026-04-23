@@ -113,7 +113,8 @@ def import_data(
     ],
     file: Annotated[
         str,
-        typer.Argument(help="Path to the file to chunk and add to the collection."),
+        typer.Argument(
+            help="Path to the file to chunk and add to the collection."),
     ],
 ) -> None:
     try:
