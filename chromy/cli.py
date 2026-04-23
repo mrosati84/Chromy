@@ -31,6 +31,9 @@ def _fail(message: str) -> None:
     raise typer.Exit(1)
 
 
+# ------------------------------------------------------------------------------
+# LIST COLLECTIONS
+# ------------------------------------------------------------------------------
 @app.command(
     "list-collections",
     help="List all collections stored in the local Chroma database.",
@@ -39,6 +42,9 @@ def list_collections() -> None:
     _run(handle_list_collections)
 
 
+# ------------------------------------------------------------------------------
+# CREATE A COLLECTION
+# ------------------------------------------------------------------------------
 @app.command(
     "create-collection",
     help="Create a collection in the local Chroma database.",
@@ -55,6 +61,9 @@ def create_collection(
         _fail(f"Collection '{collection}' already exists.")
 
 
+# ------------------------------------------------------------------------------
+# DELETE A COLLECTION
+# ------------------------------------------------------------------------------
 @app.command(
     "delete-collection",
     help="Delete a collection from the local Chroma database.",
@@ -71,6 +80,9 @@ def delete_collection(
         _fail(f"Collection '{collection}' does not exist.")
 
 
+# ------------------------------------------------------------------------------
+# COUNT RECORDS
+# ------------------------------------------------------------------------------
 @app.command(
     "count",
     help="Count records in a collection from the local Chroma database.",
@@ -87,6 +99,9 @@ def count(
         _fail(f"Collection '{collection}' does not exist.")
 
 
+# ------------------------------------------------------------------------------
+# IMPORT DATA
+# ------------------------------------------------------------------------------
 @app.command(
     "import",
     help="Chunk, embed, and add a file to a collection in the local Chroma database.",
@@ -109,6 +124,9 @@ def import_data(
         _fail(f"The file {file} was not found.")
 
 
+# ------------------------------------------------------------------------------
+# QUERY
+# ------------------------------------------------------------------------------
 @app.command("query", help="Query a collection with the provided text.")
 def query(
     collection: Annotated[
@@ -126,6 +144,9 @@ def query(
         _fail(f"Collection '{collection}' does not exist.")
 
 
+# ------------------------------------------------------------------------------
+# DELETE DATA
+# ------------------------------------------------------------------------------
 @app.command("delete", help="Delete records from a collection using a metadata filter.")
 def delete_records(
     collection: Annotated[
