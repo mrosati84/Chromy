@@ -5,7 +5,7 @@ from typing import Annotated, Callable
 import typer
 from chromadb.errors import InternalError, NotFoundError
 
-from chromy.handlers.add_data import handle_add_data
+from chromy.handlers.import_data import handle_import
 from chromy.handlers.count_collection import handle_count_collection
 from chromy.handlers.create_collection import handle_create_collection
 from chromy.handlers.delete_collection import (
@@ -88,22 +88,21 @@ def count(
 
 
 @app.command(
-    "add-data",
+    "import",
     help="Chunk, embed, and add a file to a collection in the local Chroma database.",
 )
-def add_data(
+def import_data(
     collection: Annotated[
         str,
         typer.Argument(help="Name of the target collection."),
     ],
     file: Annotated[
         str,
-        typer.Argument(
-            help="Path to the file to chunk and add to the collection."),
+        typer.Argument(help="Path to the file to chunk and add to the collection."),
     ],
 ) -> None:
     try:
-        _run(lambda: handle_add_data(collection, file))
+        _run(lambda: handle_import(collection, file))
     except NotFoundError:
         _fail(f"Collection '{collection}' does not exist.")
     except FileNotFoundError:

@@ -53,12 +53,12 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
         self.assertEqual(result.stdout, "7\n")
 
-    def test_add_data(self) -> None:
+    def test_import_data(self) -> None:
         with patch(
-            "chromy.handlers.add_data.ingest_file",
+            "chromy.handlers.import_data.ingest_file",
             return_value=3,
         ) as ingest_file:
-            result = _invoke(["add-data", "notes", "romeo_and_juliet.txt"])
+            result = _invoke(["import", "notes", "romeo_and_juliet.txt"])
 
         ingest_file.assert_called_once_with("notes", "romeo_and_juliet.txt")
         self.assertEqual(result.exit_code, 0)

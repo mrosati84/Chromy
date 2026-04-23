@@ -7,7 +7,7 @@ from contextlib import redirect_stdout
 from typing import TypeVar
 from unittest.mock import patch
 
-from chromy.handlers.add_data import handle_add_data
+from chromy.handlers.import_data import handle_import
 from chromy.handlers.count_collection import handle_count_collection
 from chromy.handlers.create_collection import handle_create_collection
 from chromy.handlers.delete_collection import (
@@ -83,13 +83,13 @@ class HandlerTests(unittest.TestCase):
         self.assertEqual(exit_code, 0)
         self.assertEqual(output, "7\n")
 
-    def test_add_data_uses_typed_input(self) -> None:
+    def test_import_data_uses_typed_input(self) -> None:
         with patch(
-            "chromy.handlers.add_data.ingest_file",
+            "chromy.handlers.import_data.ingest_file",
             return_value=3,
         ) as ingest_file:
             exit_code, output = _capture_output(
-                handle_add_data,
+                handle_import,
                 "notes",
                 "romeo_and_juliet.txt",
             )
