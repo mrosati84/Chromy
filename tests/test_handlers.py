@@ -4,6 +4,7 @@ import io
 import unittest
 from collections.abc import Callable
 from contextlib import redirect_stdout
+from pathlib import Path
 from typing import TypeVar
 from unittest.mock import patch
 
@@ -21,6 +22,10 @@ CommandT = TypeVar("CommandT")
 
 
 class HandlerTests(unittest.TestCase):
+    @staticmethod
+    def _fixture_path(path: str) -> str:
+        return str(Path(path).resolve())
+
     def test_list_collections_prints_empty_message(self) -> None:
         with patch(
             "chromy.handlers.list_collections.list_collections", return_value=[]
@@ -94,7 +99,10 @@ class HandlerTests(unittest.TestCase):
                 "romeo_and_juliet.txt",
             )
 
-        ingest_file.assert_called_once_with("notes", "romeo_and_juliet.txt")
+        ingest_file.assert_called_once_with(
+            "notes",
+            self._fixture_path("romeo_and_juliet.txt"),
+        )
         self.assertEqual(exit_code, 0)
         self.assertEqual(output, "Added 3 records to collection 'notes'.\n")
 

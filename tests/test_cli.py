@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import unittest
 from collections.abc import Sequence
+from pathlib import Path
 from unittest.mock import patch
 
 from click.testing import Result
@@ -11,6 +12,10 @@ from chromy.cli import app
 
 
 class CliTests(unittest.TestCase):
+    @staticmethod
+    def _fixture_path(path: str) -> str:
+        return str(Path(path).resolve())
+
     def test_list_collections(self) -> None:
         with patch(
             "chromy.handlers.list_collections.list_collections",
@@ -60,7 +65,10 @@ class CliTests(unittest.TestCase):
         ) as ingest_file:
             result = _invoke(["import", "notes", "romeo_and_juliet.txt"])
 
-        ingest_file.assert_called_once_with("notes", "romeo_and_juliet.txt")
+        ingest_file.assert_called_once_with(
+            "notes",
+            self._fixture_path("romeo_and_juliet.txt"),
+        )
         self.assertEqual(result.exit_code, 0)
         self.assertEqual(result.stdout, "Added 3 records to collection 'notes'.\n")
 
