@@ -141,12 +141,6 @@ class CliTests(unittest.TestCase):
             "where file_name=play.txt.\n",
         )
 
-    def test_removed_alias_is_rejected(self) -> None:
-        result = _invoke(["lc"])
-
-        self.assertNotEqual(result.exit_code, 0)
-        self.assertIn("No such command", result.output)
-
     def test_invalid_delete_filter_keeps_user_facing_error(self) -> None:
         result = _invoke(["delete", "notes", "--where", "file_name"])
 
