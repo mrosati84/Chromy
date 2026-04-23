@@ -5,7 +5,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from unittest.mock import patch
 
-from chromadb.errors import InternalError
+from chromadb.errors import InternalError, NotFoundError
 from click.testing import Result
 from typer.testing import CliRunner
 
@@ -69,6 +69,17 @@ class CliTests(unittest.TestCase):
         delete_collection.assert_called_once_with("notes")
         self.assertEqual(result.exit_code, 0)
         self.assertEqual(result.stdout, "Deleted collection 'notes'.\n")
+
+    def test_delete_non_existent_collection(self) -> None:
+        with patch(
+            "chromy.handlers.delete_collection.delete_collection",
+            side_effect=NotFoundError()
+        ) as delete_collection:
+            result = _invoke(["delete-collection", "notes"])
+
+        delete_collection.assert_called_once_with("notes")
+        self.assertEqual(result.exit_code, 1)
+        self.assertEqual(result.stdout, "Collection 'notes' does not exist.\n")
 
     def test_count(self) -> None:
         with patch(
