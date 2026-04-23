@@ -5,6 +5,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from unittest.mock import patch
 
+from chromadb.errors import InternalError
 from click.testing import Result
 from typer.testing import CliRunner
 
@@ -47,6 +48,18 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
         self.assertEqual(result.stdout, "Created collection 'notes'.\n")
 
+    def test_create_collection_with_same_name(self) -> None:
+        with patch(
+            "chromy.handlers.create_collection.create_collection",
+            side_effect=InternalError()
+
+        ) as create_collection:
+            result = _invoke(["create-collection", "notes"])
+
+        create_collection.assert_called_once_with("notes")
+        self.assertEqual(result.exit_code, 1)
+        self.assertEqual(result.stdout, "Collection 'notes' already exists.\n")
+
     def test_delete_collection(self) -> None:
         with patch(
             "chromy.handlers.delete_collection.delete_collection",
@@ -80,7 +93,8 @@ class CliTests(unittest.TestCase):
             self._fixture_path("romeo_and_juliet.txt"),
         )
         self.assertEqual(result.exit_code, 0)
-        self.assertEqual(result.stdout, "Added 3 records to collection 'notes'.\n")
+        self.assertEqual(
+            result.stdout, "Added 3 records to collection 'notes'.\n")
 
     def test_query(self) -> None:
         query_result = {"ids": [["1"]], "documents": [["hello"]]}
