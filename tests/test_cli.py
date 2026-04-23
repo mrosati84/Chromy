@@ -16,7 +16,7 @@ class CliTests(unittest.TestCase):
     def _fixture_path(path: str) -> str:
         return str(Path(path).resolve())
 
-    def test_list_collections(self) -> None:
+    def test_list_empty_collections(self) -> None:
         with patch(
             "chromy.handlers.list_collections.list_collections",
             return_value=[],
@@ -25,6 +25,16 @@ class CliTests(unittest.TestCase):
 
         self.assertEqual(result.exit_code, 0)
         self.assertEqual(result.stdout, "No collections found.\n")
+
+    def test_list_existing_collections(self) -> None:
+        with patch(
+            "chromy.handlers.list_collections.list_collections",
+            return_value=["books", "code"],
+        ):
+            result = _invoke(["list-collections"])
+
+        self.assertEqual(result.exit_code, 0)
+        self.assertEqual(result.stdout, "books\ncode\n")
 
     def test_create_collection(self) -> None:
         with patch(
