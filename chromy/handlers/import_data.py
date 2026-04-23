@@ -5,15 +5,25 @@ from pathlib import Path
 from chromy.utilities import ingest_file
 
 
-def handle_import(collection: str, file: str) -> int:
+def _get_absolute_path(file: str) -> str:
+    """
+    A helper method that, given a valid relative path to a file, returns its
+    absolute path.
+
+    Args:
+        file (str): The relative path to the file.
+
+    Raises:
+        FileNotFoundError(): If the file does not exist.
+    """
     if not os.path.exists(file):
         raise FileNotFoundError()
 
-    # This ensures that the path saved as file_name in the metadatas is the
-    # full path rather than a simple file name.
     file_path = Path(file)
-    full_file_path = str(file_path.resolve(file_path))
+    return str(file_path.resolve(file_path))
 
-    records_added = ingest_file(collection, full_file_path)
+
+def handle_import(collection: str, file: str) -> int:
+    records_added = ingest_file(collection, _get_absolute_path(file))
     print(f"Added {records_added} records to collection '{collection}'.")
     return 0
