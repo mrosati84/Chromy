@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Annotated, Callable
 
 import typer
+from rich import print
 from chromadb.errors import InternalError, NotFoundError
 
 from chromy.handlers.import_data import handle_import
@@ -27,7 +28,7 @@ def _run(handler: ExitCodeHandler) -> None:
 
 
 def _fail(message: str) -> None:
-    typer.echo(message)
+    print("[bold red]Error[/]:", message)
     raise typer.Exit(1)
 
 

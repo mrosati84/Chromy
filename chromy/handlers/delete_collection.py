@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from rich import print
 from chromy.chroma_functions import delete_collection, delete_data
 
 
@@ -22,7 +23,7 @@ def _parse_where_clause(where_clause: str) -> dict[str, str]:
 
 def handle_delete_collection(collection: str) -> int:
     delete_collection(collection)
-    print(f"Deleted collection '{collection}'.")
+    print(f"[bold green]Deleted[/] collection '{collection}'.")
     return 0
 
 
@@ -31,7 +32,7 @@ def handle_delete_records(collection: str, where_clause: str) -> int:
     deleted = delete_data(collection, where)
     condition, value = next(iter(where.items()))
     print(
-        f"Deleted {deleted} record(s) from collection '{collection}' "
+        f"[bold green]Deleted[/] {deleted} record(s) from collection '{collection}' "
         f"where {condition}={value}."
     )
     return 0

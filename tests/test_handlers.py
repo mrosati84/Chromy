@@ -61,7 +61,7 @@ class HandlerTests(unittest.TestCase):
 
         create_collection.assert_called_once_with("notes")
         self.assertEqual(exit_code, 0)
-        self.assertEqual(output, "Created collection 'notes'.\n")
+        self.assertEqual(output, "Created: collection 'notes'.\n")
 
     def test_delete_collection_uses_typed_input(self) -> None:
         with patch("chromy.handlers.delete_collection.delete_collection") as delete:

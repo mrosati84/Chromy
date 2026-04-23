@@ -54,10 +54,11 @@ def delete_data(collection_name: str, where: dict[str, str]) -> int:
     return int(result.get("deleted", 0))
 
 
-def count_collection(collection_name: str) -> int:
+def count_collection(collection_name: str) -> str:
     _, collection = _get_client_and_collection(collection_name)
+    count = collection.count()
 
-    return collection.count()
+    return f"The '{collection_name}' collection contains [bold green]{count}[/] records."
 
 
 def add_data(

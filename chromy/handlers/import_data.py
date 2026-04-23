@@ -2,6 +2,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from rich import print
 from chromy.utilities import ingest_file
 
 
@@ -25,5 +26,6 @@ def _get_absolute_path(file: str) -> str:
 
 def handle_import(collection: str, file: str) -> int:
     records_added = ingest_file(collection, _get_absolute_path(file))
-    print(f"Added {records_added} records to collection '{collection}'.")
+    print(
+        f"[bold green]Added[/] {records_added} records to collection '{collection}'.")
     return 0

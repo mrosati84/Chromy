@@ -46,7 +46,7 @@ class CliTests(unittest.TestCase):
 
         create_collection.assert_called_once_with("notes")
         self.assertEqual(result.exit_code, 0)
-        self.assertEqual(result.stdout, "Created collection 'notes'.\n")
+        self.assertEqual(result.stdout, "Created: collection 'notes'.\n")
 
     def test_create_collection_with_same_name(self) -> None:
         with patch(
@@ -58,7 +58,8 @@ class CliTests(unittest.TestCase):
 
         create_collection.assert_called_once_with("notes")
         self.assertEqual(result.exit_code, 1)
-        self.assertEqual(result.stdout, "Collection 'notes' already exists.\n")
+        self.assertEqual(
+            result.stdout, "Error: Collection 'notes' already exists.\n")
 
     def test_delete_collection(self) -> None:
         with patch(
@@ -79,7 +80,8 @@ class CliTests(unittest.TestCase):
 
         delete_collection.assert_called_once_with("notes")
         self.assertEqual(result.exit_code, 1)
-        self.assertEqual(result.stdout, "Collection 'notes' does not exist.\n")
+        self.assertEqual(
+            result.stdout, "Error: Collection 'notes' does not exist.\n")
 
     def test_count(self) -> None:
         with patch(
@@ -147,7 +149,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.exit_code, 1)
         self.assertEqual(
             result.stdout,
-            "Invalid --where value. Expected <condition>=<value>.\n",
+            "Error: Invalid --where value. Expected <condition>=<value>.\n",
         )
 
     def test_delete_requires_where_option(self) -> None:
