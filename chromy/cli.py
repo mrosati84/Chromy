@@ -3,16 +3,16 @@ from __future__ import annotations
 from typing import Annotated, Callable
 
 import typer
-from rich import print
 from chromadb.errors import InternalError, NotFoundError
+from rich import print
 
-from chromy.handlers.import_data import handle_import
 from chromy.handlers.count_collection import handle_count_collection
 from chromy.handlers.create_collection import handle_create_collection
 from chromy.handlers.delete_collection import (
     handle_delete_collection,
     handle_delete_records,
 )
+from chromy.handlers.import_data import handle_import
 from chromy.handlers.list_collections import handle_list_collections
 from chromy.handlers.query import handle_query
 
@@ -114,8 +114,7 @@ def import_data(
     ],
     file: Annotated[
         str,
-        typer.Argument(
-            help="Path to the file to chunk and add to the collection."),
+        typer.Argument(help="Path to the file to chunk and add to the collection."),
     ],
 ) -> None:
     try:

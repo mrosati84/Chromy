@@ -58,7 +58,9 @@ def count_collection(collection_name: str) -> str:
     _, collection = _get_client_and_collection(collection_name)
     count = collection.count()
 
-    return f"The '{collection_name}' collection contains [bold green]{count}[/] records."
+    return (
+        f"The '{collection_name}' collection contains [bold green]{count}[/] records."
+    )
 
 
 def add_data(
@@ -71,8 +73,7 @@ def add_data(
 
     _, collection = _get_client_and_collection(collection_name)
 
-    embeddings: list[Sequence[float]] = [record["embedding"]
-                                         for record in data]
+    embeddings: list[Sequence[float]] = [record["embedding"] for record in data]
 
     collection.add(
         ids=[str(uuid4()) for _ in data],

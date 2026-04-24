@@ -51,15 +51,13 @@ class CliTests(unittest.TestCase):
     def test_create_collection_with_same_name(self) -> None:
         with patch(
             "chromy.handlers.create_collection.create_collection",
-            side_effect=InternalError()
-
+            side_effect=InternalError(),
         ) as create_collection:
             result = _invoke(["create-collection", "notes"])
 
         create_collection.assert_called_once_with("notes")
         self.assertEqual(result.exit_code, 1)
-        self.assertEqual(
-            result.stdout, "Error: Collection 'notes' already exists.\n")
+        self.assertEqual(result.stdout, "Error: Collection 'notes' already exists.\n")
 
     def test_delete_collection(self) -> None:
         with patch(
@@ -74,14 +72,13 @@ class CliTests(unittest.TestCase):
     def test_delete_non_existent_collection(self) -> None:
         with patch(
             "chromy.handlers.delete_collection.delete_collection",
-            side_effect=NotFoundError()
+            side_effect=NotFoundError(),
         ) as delete_collection:
             result = _invoke(["delete-collection", "notes"])
 
         delete_collection.assert_called_once_with("notes")
         self.assertEqual(result.exit_code, 1)
-        self.assertEqual(
-            result.stdout, "Error: Collection 'notes' does not exist.\n")
+        self.assertEqual(result.stdout, "Error: Collection 'notes' does not exist.\n")
 
     def test_count(self) -> None:
         with patch(
@@ -106,8 +103,7 @@ class CliTests(unittest.TestCase):
             self._fixture_path("romeo_and_juliet.txt"),
         )
         self.assertEqual(result.exit_code, 0)
-        self.assertEqual(
-            result.stdout, "Added 3 records to collection 'notes'.\n")
+        self.assertEqual(result.stdout, "Added 3 records to collection 'notes'.\n")
 
     def test_query(self) -> None:
         query_result = {"ids": [["1"]], "documents": [["hello"]]}
@@ -139,8 +135,7 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
         self.assertEqual(
             result.stdout,
-            "Deleted 2 record(s) from collection 'notes' "
-            "where file_name=play.txt.\n",
+            "Deleted 2 record(s) from collection 'notes' where file_name=play.txt.\n",
         )
 
     def test_invalid_delete_filter_keeps_user_facing_error(self) -> None:

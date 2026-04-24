@@ -14,7 +14,7 @@ from chromy.embed import embed
 CONSOLE = Console()
 
 
-def print_lines(lines: Sequence[str]) -> None:
+def print_lines(lines: Sequence[Rule | Text]) -> None:
     for line in lines:
         CONSOLE.print(line)
 

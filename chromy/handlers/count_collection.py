@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from rich import print
+
 from chromy.chroma_functions import count_collection
 
 

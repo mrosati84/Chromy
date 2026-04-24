@@ -8,13 +8,13 @@ from pathlib import Path
 from typing import TypeVar
 from unittest.mock import patch
 
-from chromy.handlers.import_data import handle_import
 from chromy.handlers.count_collection import handle_count_collection
 from chromy.handlers.create_collection import handle_create_collection
 from chromy.handlers.delete_collection import (
     handle_delete_collection,
     handle_delete_records,
 )
+from chromy.handlers.import_data import handle_import
 from chromy.handlers.list_collections import handle_list_collections
 from chromy.handlers.query import handle_query
 
@@ -154,7 +154,7 @@ class HandlerTests(unittest.TestCase):
 
 def _capture_output(
     handler: Callable[..., int],
-    *arguments: CommandT,
+    *arguments: object,
 ) -> tuple[int, str]:
     output = io.StringIO()
 
