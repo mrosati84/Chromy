@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-from rich.text import Text
-from rich.rule import Rule
-from rich.console import Console
-
 from collections.abc import Mapping, Sequence
 
 from chromadb import QueryResult
+from rich.console import Console
+from rich.rule import Rule
+from rich.text import Text
 
 from chromy.chroma_functions import add_data, query_data
 from chromy.chunk_functions import chunk_file
@@ -31,7 +30,7 @@ def run_query(collection_name: str, query_text: str) -> QueryResult:
     return query_data(collection_name, [query_text])
 
 
-def format_query_result(result: QueryResult) -> list[str]:
+def format_query_result(result: QueryResult) -> list[Rule | Text]:
     ids = result.get("ids", [[]])
     documents = result.get("documents", [[]])
     distances = result.get("distances", [[]])
@@ -43,12 +42,11 @@ def format_query_result(result: QueryResult) -> list[str]:
     first_metadatas = metadatas[0] if metadatas else []
 
     if not first_ids:
-        return ["No results found."]
+        return [Text.from_markup("[yellow]No results found.[/]")]
 
-    lines = [Rule(title="Query results")]
+    lines: list[Rule | Text] = [Rule(title="Query results")]
 
     for index, document_id in enumerate(first_ids, start=1):
-        # lines.append(f"{index}.\tid: {document_id}")
         lines.append(
             Text.from_markup(f"[bold]{index}[/].\t[green]id[/]\t\t{document_id}")
         )
@@ -72,7 +70,7 @@ def format_query_result(result: QueryResult) -> list[str]:
 
         if i < len(first_documents):
             lines.append(Text.from_markup("\n[bold green]Retrieved contents[/]\n"))
-            lines.append(first_documents[i])
+            lines.append(Text(first_documents[i]))
 
         # Print a separator between documents
         lines.append(Rule())
