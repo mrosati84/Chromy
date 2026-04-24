@@ -1,6 +1,10 @@
 # Chromy
 
-A small command-line utility for working with a local Chroma database. It lets you create collections, ingest file contents as chunked embeddings, and run similarity queries against stored documents.
+<div align="center">
+    <img src="logo.png" width=300 />
+</div>
+
+Chromy is small and simple to use command-line utility for working with a local Chroma database. It lets you create collections, ingest files as chunked embeddings, and run similarity queries against stored documents. It integrates perfectly with agentic coding tools via simple skills.
 
 ## What it does
 
@@ -136,7 +140,7 @@ chromy create-collection notes
 Add a file:
 
 ```bash
-chromy add-data notes ./docs/example.txt
+chromy import notes ./docs/example.txt
 ```
 
 Count stored records:
@@ -171,7 +175,7 @@ chromy delete notes --where file_name=example.txt
 
 ## How ingestion works
 
-When you run `add-data`, the file is:
+When you run `import`, the file is:
 
 1. read from disk
 2. split into chunks
@@ -182,6 +186,6 @@ Query results include the stored document chunk, its id, distance, and file name
 
 ## Notes
 
-- collections are stored in a local persistent Chroma database
-- `add-data` requires the target collection to already exist
+- collections are stored in a local persistent Chroma database in the current directory
+- `import` requires the target collection to already exist
 - the CLI prints friendly messages for common errors such as missing collections or missing files
