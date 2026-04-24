@@ -8,6 +8,7 @@ import chromadb
 from chromadb.api import ClientAPI
 from chromadb.api.types import QueryResult, Where
 from chromadb.errors import NotFoundError
+from rich.text import Text
 
 from chromy.embed import EmbeddingRecord
 
@@ -25,14 +26,17 @@ def _get_client_and_collection(
     return client, collection
 
 
-def list_collections() -> list[str]:
+def list_collections() -> list[Text]:
     client = chromadb.PersistentClient()
     collections = client.list_collections()
 
     if not collections:
         return []
 
-    return [getattr(collection, "name", str(collection)) for collection in collections]
+    return [
+        Text("· " + getattr(collection, "name", str(collection)))
+        for collection in collections
+    ]
 
 
 def create_collection(name: str) -> str:
