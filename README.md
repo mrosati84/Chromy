@@ -4,7 +4,7 @@
     <img src="logo.png" width=300 />
 </div>
 
-Chromy is small and simple to use command-line utility for working with a local Chroma database. It lets you create collections, ingest files as chunked embeddings, and run similarity queries against stored documents. It integrates perfectly with agentic coding tools via simple skills.
+Chromy is small and simple to use command-line utility for working with a local Chroma database. It lets you create collections, ingest files as chunked embeddings, and run similarity queries against stored documents. It integrates perfectly with agentic coding tools via simple skills (see an [example](./skills/chromy/SKILL.md) in the `skills` directory).
 
 ## What it does
 
