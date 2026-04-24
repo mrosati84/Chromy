@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from plistlib import InvalidFileException
 from typing import Annotated, Callable
 
 import typer
@@ -122,7 +123,9 @@ def import_data(
     except NotFoundError:
         _fail(f"Collection '{collection}' does not exist.")
     except FileNotFoundError:
-        _fail(f"The file {file} was not found.")
+        _fail(f"The file '{file}' was not found.")
+    except InvalidFileException:
+        _fail(f"The file '{file}' is not a text file.")
 
 
 # ------------------------------------------------------------------------------

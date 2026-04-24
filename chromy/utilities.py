@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+from pathlib import Path
 
 from chromadb import QueryResult
 from rich.console import Console
@@ -76,3 +77,41 @@ def format_query_result(result: QueryResult) -> list[Rule | Text]:
         lines.append(Rule())
 
     return lines
+
+
+def is_probably_text_file(path: str | Path, sample_size: int = 8192) -> bool:
+    """
+    Return whether a file appears to contain text.
+
+    Args:
+        path (str | Path): The path to the file to inspect.
+        sample_size (int): The maximum number of bytes to read from the file.
+
+    Returns:
+        bool: ``True`` if the sampled bytes decode as UTF-8, UTF-8 with BOM,
+        UTF-16, or UTF-32, or if the file is empty. Otherwise, ``False``.
+    """
+
+    path = Path(path)
+
+    with path.open("rb") as f:
+        sample = f.read(sample_size)
+
+    if not sample:
+        return True
+
+    encodings = (
+        "utf-8",
+        "utf-8-sig",
+        "utf-16",
+        "utf-32",
+    )
+
+    for encoding in encodings:
+        try:
+            sample.decode(encoding)
+            return True
+        except UnicodeDecodeError:
+            pass
+
+    return False
