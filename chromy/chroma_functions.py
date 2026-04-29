@@ -8,7 +8,6 @@ import chromadb
 from chromadb.api import ClientAPI
 from chromadb.api.types import QueryResult, Where
 from chromadb.errors import NotFoundError
-from rich.text import Text
 
 from chromy.embed import EmbeddingRecord
 
@@ -26,17 +25,14 @@ def _get_client_and_collection(
     return client, collection
 
 
-def list_collections() -> list[Text]:
+def list_collections() -> list[str]:
     client = chromadb.PersistentClient()
     collections = client.list_collections()
 
     if not collections:
         return []
 
-    return [
-        Text("· " + getattr(collection, "name", str(collection)))
-        for collection in collections
-    ]
+    return [getattr(collection, "name", str(collection)) for collection in collections]
 
 
 def create_collection(name: str) -> str:
@@ -58,13 +54,9 @@ def delete_data(collection_name: str, where: dict[str, str]) -> int:
     return int(result.get("deleted", 0))
 
 
-def count_collection(collection_name: str) -> str:
+def count_collection(collection_name: str) -> int:
     _, collection = _get_client_and_collection(collection_name)
-    count = collection.count()
-
-    return (
-        f"The '{collection_name}' collection contains [bold green]{count}[/] records."
-    )
+    return collection.count()
 
 
 def add_data(

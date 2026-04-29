@@ -31,11 +31,11 @@ class CliTests(unittest.TestCase):
         with patch(
             "chromy.handlers.list_collections.list_collections",
             return_value=["books", "code"],
-        ):
+        ): 
             result = _invoke(["list-collections"])
 
         self.assertEqual(result.exit_code, 0)
-        self.assertEqual(result.stdout, "books\ncode\n")
+        self.assertEqual(result.stdout, "· books\n· code\n")
 
     def test_create_collection(self) -> None:
         with patch(
@@ -89,7 +89,10 @@ class CliTests(unittest.TestCase):
 
         count_collection.assert_called_once_with("notes")
         self.assertEqual(result.exit_code, 0)
-        self.assertEqual(result.stdout, "7\n")
+        self.assertEqual(
+            result.stdout,
+            "The 'notes' collection contains 7 records.\n",
+        )
 
     def test_import_data(self) -> None:
         with patch(
@@ -104,6 +107,19 @@ class CliTests(unittest.TestCase):
         )
         self.assertEqual(result.exit_code, 0)
         self.assertEqual(result.stdout, "Added 3 records to collection 'notes'.\n")
+
+    def test_import_data_rejects_non_text_files(self) -> None:
+        with patch(
+            "chromy.handlers.import_data.is_probably_text_file",
+            return_value=False,
+        ):
+            result = _invoke(["import", "notes", "romeo_and_juliet.txt"])
+
+        self.assertEqual(result.exit_code, 1)
+        self.assertEqual(
+            result.stdout,
+            "Error: The file 'romeo_and_juliet.txt' is not a text file.\n",
+        )
 
     def test_query(self) -> None:
         query_result = {"ids": [["1"]], "documents": [["hello"]]}

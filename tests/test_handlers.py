@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import TypeVar
 from unittest.mock import patch
 
+from chromy.errors import UnsupportedTextFileError
 from chromy.handlers.count_collection import handle_count_collection
 from chromy.handlers.create_collection import handle_create_collection
 from chromy.handlers.delete_collection import (
@@ -47,7 +48,7 @@ class HandlerTests(unittest.TestCase):
             )
 
         self.assertEqual(exit_code, 0)
-        self.assertEqual(output, "notes\nplays\n")
+        self.assertEqual(output, "· notes\n· plays\n")
 
     def test_create_collection_uses_typed_input(self) -> None:
         with patch(
@@ -86,7 +87,7 @@ class HandlerTests(unittest.TestCase):
 
         count.assert_called_once_with("notes")
         self.assertEqual(exit_code, 0)
-        self.assertEqual(output, "7\n")
+        self.assertEqual(output, "The 'notes' collection contains 7 records.\n")
 
     def test_import_data_uses_typed_input(self) -> None:
         with patch(
@@ -105,6 +106,16 @@ class HandlerTests(unittest.TestCase):
         )
         self.assertEqual(exit_code, 0)
         self.assertEqual(output, "Added 3 records to collection 'notes'.\n")
+
+    def test_import_data_rejects_non_text_files(self) -> None:
+        with (
+            patch(
+                "chromy.handlers.import_data.is_probably_text_file",
+                return_value=False,
+            ),
+            self.assertRaises(UnsupportedTextFileError),
+        ):
+                handle_import("notes", "romeo_and_juliet.txt")
 
     def test_query_uses_typed_input(self) -> None:
         query_result = {"ids": [["1"]], "documents": [["hello"]]}

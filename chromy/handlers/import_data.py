@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from plistlib import InvalidFileException
 
 from rich import print
 
+from chromy.errors import UnsupportedTextFileError
 from chromy.utilities import ingest_file
 
 from ..utilities import is_probably_text_file
@@ -33,8 +33,8 @@ def handle_import(collection: str, file: str) -> int:
     absolute_path = _get_absolute_path(file)
 
     if not is_probably_text_file(absolute_path):
-        raise InvalidFileException()
+        raise UnsupportedTextFileError()
 
-    records_added = ingest_file(collection, _get_absolute_path(file))
+    records_added = ingest_file(collection, absolute_path)
     print(f"[bold green]Added[/] {records_added} records to collection '{collection}'.")
     return 0

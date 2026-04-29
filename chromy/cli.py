@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from plistlib import InvalidFileException
 from typing import Annotated, Callable
 
 import typer
 from chromadb.errors import InternalError, NotFoundError
 from rich import print
 
+from chromy.errors import UnsupportedTextFileError
 from chromy.handlers.count_collection import handle_count_collection
 from chromy.handlers.create_collection import handle_create_collection
 from chromy.handlers.delete_collection import (
@@ -124,7 +124,7 @@ def import_data(
         _fail(f"Collection '{collection}' does not exist.")
     except FileNotFoundError:
         _fail(f"The file '{file}' was not found.")
-    except InvalidFileException:
+    except UnsupportedTextFileError:
         _fail(f"The file '{file}' is not a text file.")
 
 

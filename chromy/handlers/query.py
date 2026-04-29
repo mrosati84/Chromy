@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from chromy.utilities import format_query_result, print_lines, run_query
+from chromy.output import format_query_result, print_lines
+from chromy.utilities import run_query
 
 
 def handle_query(collection: str, query_text: str) -> int:
