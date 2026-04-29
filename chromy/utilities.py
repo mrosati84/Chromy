@@ -4,12 +4,15 @@ from pathlib import Path
 
 from chromadb import QueryResult
 
-from chromy.chroma_functions import add_data, query_data
+from chromy.chroma_functions import add_data, delete_data, has_data_for_file, query_data
 from chromy.chunk_functions import chunk_file
 from chromy.embed import embed
 
 
 def ingest_file(collection_name: str, file_path: str) -> int:
+    if has_data_for_file(collection_name, file_path):
+        delete_data(collection_name, {"file_name": file_path})
+
     chunks = chunk_file(file_path)
     embeddings = embed(chunks)
     add_data(collection_name, embeddings, file_path)

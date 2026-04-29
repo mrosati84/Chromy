@@ -54,6 +54,14 @@ def delete_data(collection_name: str, where: dict[str, str]) -> int:
     return int(result.get("deleted", 0))
 
 
+def has_data_for_file(collection_name: str, file_name: str) -> bool:
+    _, collection = _get_client_and_collection(collection_name)
+    result = collection.get(where=cast(Where, {"file_name": file_name}))
+    ids = result.get("ids", [])
+
+    return len(ids) > 0
+
+
 def count_collection(collection_name: str) -> int:
     _, collection = _get_client_and_collection(collection_name)
     return collection.count()
