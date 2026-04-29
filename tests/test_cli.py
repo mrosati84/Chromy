@@ -106,7 +106,58 @@ class CliTests(unittest.TestCase):
             self._fixture_path("romeo_and_juliet.txt"),
         )
         self.assertEqual(result.exit_code, 0)
-        self.assertEqual(result.stdout, "Added 3 records to collection 'notes'.\n")
+        self.assertEqual(
+            result.stdout,
+            "Added 3 records from 'romeo_and_juliet.txt' to collection 'notes'.\n"
+            "Imported 1 file(s) successfully; 0 failed.\n",
+        )
+
+    def test_import_data_accepts_multiple_files(self) -> None:
+        with patch(
+            "chromy.handlers.import_data.ingest_file",
+            side_effect=[3, 2],
+        ) as ingest_file:
+            result = _invoke(
+                ["import", "notes", "romeo_and_juliet.txt", "README.md"],
+            )
+
+        self.assertEqual(ingest_file.call_count, 2)
+        ingest_file.assert_any_call(
+            "notes",
+            self._fixture_path("romeo_and_juliet.txt"),
+        )
+        ingest_file.assert_any_call(
+            "notes",
+            self._fixture_path("README.md"),
+        )
+        self.assertEqual(result.exit_code, 0)
+        self.assertEqual(
+            result.stdout,
+            "Added 3 records from 'romeo_and_juliet.txt' to collection 'notes'.\n"
+            "Added 2 records from 'README.md' to collection 'notes'.\n"
+            "Imported 2 file(s) successfully; 0 failed.\n",
+        )
+
+    def test_import_data_continues_after_missing_file(self) -> None:
+        with patch(
+            "chromy.handlers.import_data.ingest_file",
+            return_value=3,
+        ) as ingest_file:
+            result = _invoke(
+                ["import", "notes", "missing.txt", "romeo_and_juliet.txt"],
+            )
+
+        ingest_file.assert_called_once_with(
+            "notes",
+            self._fixture_path("romeo_and_juliet.txt"),
+        )
+        self.assertEqual(result.exit_code, 1)
+        self.assertEqual(
+            result.stdout,
+            "Error: The file 'missing.txt' was not found.\n"
+            "Added 3 records from 'romeo_and_juliet.txt' to collection 'notes'.\n"
+            "Imported 1 file(s) successfully; 1 failed.\n",
+        )
 
     def test_import_data_rejects_non_text_files(self) -> None:
         with patch(
@@ -118,7 +169,38 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.exit_code, 1)
         self.assertEqual(
             result.stdout,
-            "Error: The file 'romeo_and_juliet.txt' is not a text file.\n",
+            "Error: The file 'romeo_and_juliet.txt' is not a text file.\n"
+            "Imported 0 file(s) successfully; 1 failed.\n",
+        )
+
+    def test_import_data_treats_literal_glob_as_missing_file(self) -> None:
+        result = _invoke(["import", "notes", "*.md"])
+
+        self.assertEqual(result.exit_code, 1)
+        self.assertEqual(
+            result.stdout,
+            "Error: The file '*.md' was not found.\n"
+            "Imported 0 file(s) successfully; 1 failed.\n",
+        )
+
+    def test_import_data_deduplicates_paths_within_single_invocation(self) -> None:
+        with patch(
+            "chromy.handlers.import_data.ingest_file",
+            return_value=3,
+        ) as ingest_file:
+            result = _invoke(
+                ["import", "notes", "README.md", "./README.md"],
+            )
+
+        ingest_file.assert_called_once_with(
+            "notes",
+            self._fixture_path("README.md"),
+        )
+        self.assertEqual(result.exit_code, 0)
+        self.assertEqual(
+            result.stdout,
+            "Added 3 records from 'README.md' to collection 'notes'.\n"
+            "Imported 1 file(s) successfully; 0 failed.\n",
         )
 
     def test_query(self) -> None:

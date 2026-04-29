@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import TypeVar
 from unittest.mock import patch
 
-from chromy.errors import UnsupportedTextFileError
 from chromy.handlers.count_collection import handle_count_collection
 from chromy.handlers.create_collection import handle_create_collection
 from chromy.handlers.delete_collection import (
@@ -97,7 +96,7 @@ class HandlerTests(unittest.TestCase):
             exit_code, output = _capture_output(
                 handle_import,
                 "notes",
-                "romeo_and_juliet.txt",
+                ["romeo_and_juliet.txt"],
             )
 
         ingest_file.assert_called_once_with(
@@ -105,17 +104,74 @@ class HandlerTests(unittest.TestCase):
             self._fixture_path("romeo_and_juliet.txt"),
         )
         self.assertEqual(exit_code, 0)
-        self.assertEqual(output, "Added 3 records to collection 'notes'.\n")
+        self.assertEqual(
+            output,
+            "Added 3 records from 'romeo_and_juliet.txt' to collection 'notes'.\n"
+            "Imported 1 file(s) successfully; 0 failed.\n",
+        )
+
+    def test_import_data_continues_after_missing_file(self) -> None:
+        with patch(
+            "chromy.handlers.import_data.ingest_file",
+            return_value=3,
+        ) as ingest_file:
+            exit_code, output = _capture_output(
+                handle_import,
+                "notes",
+                ["missing.txt", "romeo_and_juliet.txt"],
+            )
+
+        ingest_file.assert_called_once_with(
+            "notes",
+            self._fixture_path("romeo_and_juliet.txt"),
+        )
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(
+            output,
+            "Error: The file 'missing.txt' was not found.\n"
+            "Added 3 records from 'romeo_and_juliet.txt' to collection 'notes'.\n"
+            "Imported 1 file(s) successfully; 1 failed.\n",
+        )
 
     def test_import_data_rejects_non_text_files(self) -> None:
-        with (
-            patch(
-                "chromy.handlers.import_data.is_probably_text_file",
-                return_value=False,
-            ),
-            self.assertRaises(UnsupportedTextFileError),
+        with patch(
+            "chromy.handlers.import_data.is_probably_text_file",
+            return_value=False,
         ):
-                handle_import("notes", "romeo_and_juliet.txt")
+            exit_code, output = _capture_output(
+                handle_import,
+                "notes",
+                ["romeo_and_juliet.txt"],
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(
+            output,
+            "Error: The file 'romeo_and_juliet.txt' is not a text file.\n"
+            "Imported 0 file(s) successfully; 1 failed.\n",
+        )
+
+    def test_import_data_deduplicates_files(self) -> None:
+        with patch(
+            "chromy.handlers.import_data.ingest_file",
+            return_value=3,
+        ) as ingest_file:
+            exit_code, output = _capture_output(
+                handle_import,
+                "notes",
+                ["README.md", "./README.md"],
+            )
+
+        ingest_file.assert_called_once_with(
+            "notes",
+            self._fixture_path("README.md"),
+        )
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(
+            output,
+            "Added 3 records from 'README.md' to collection 'notes'.\n"
+            "Imported 1 file(s) successfully; 0 failed.\n",
+        )
 
     def test_query_uses_typed_input(self) -> None:
         query_result = {"ids": [["1"]], "documents": [["hello"]]}

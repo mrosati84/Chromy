@@ -124,7 +124,7 @@ list-collections
 create-collection <collection>
 delete-collection <collection>
 count <collection>
-add-data <collection> <file>
+import <collection> <file> [<file> ...]
 query <collection> <query_text>
 delete <collection> --where <condition>=<value>
 ```
@@ -137,10 +137,12 @@ Create a collection:
 chromy create-collection notes
 ```
 
-Add a file:
+Add one or more files:
 
 ```bash
 chromy import notes ./docs/example.txt
+chromy import notes ./docs/intro.md ./docs/setup.md
+chromy import notes *.md
 ```
 
 Count stored records:
@@ -175,7 +177,7 @@ chromy delete notes --where file_name=example.txt
 
 ## How ingestion works
 
-When you run `import`, the file is:
+When you run `import`, each file is:
 
 1. read from disk
 2. split into chunks
@@ -188,4 +190,8 @@ Query results include the stored document chunk, its id, distance, and file name
 
 - collections are stored in a local persistent Chroma database in the current directory
 - `import` requires the target collection to already exist
-- the CLI prints friendly messages for common errors such as missing collections or missing files
+- `import` accepts one or more file paths
+- unquoted glob patterns such as `*.md` are expanded by the shell before `chromy` starts
+- quoted glob patterns such as `"*.md"` are treated as literal paths and are not expanded by `chromy`
+- unmatched unquoted globs may behave differently by shell: `zsh` commonly fails before `chromy` starts, while `bash` may pass the literal pattern through depending on shell settings
+- the CLI reports file-specific import failures and continues with the remaining files

@@ -6,7 +6,6 @@ import typer
 from chromadb.errors import InternalError, NotFoundError
 from rich import print
 
-from chromy.errors import UnsupportedTextFileError
 from chromy.handlers.count_collection import handle_count_collection
 from chromy.handlers.create_collection import handle_create_collection
 from chromy.handlers.delete_collection import (
@@ -106,26 +105,27 @@ def count(
 # ------------------------------------------------------------------------------
 @app.command(
     "import",
-    help="Chunk, embed, and add a file to a collection in the local Chroma database.",
+    help=(
+        "Chunk, embed, and add one or more files to a collection in the "
+        "local Chroma database."
+    ),
 )
 def import_data(
     collection: Annotated[
         str,
         typer.Argument(help="Name of the target collection."),
     ],
-    file: Annotated[
-        str,
-        typer.Argument(help="Path to the file to chunk and add to the collection."),
+    files: Annotated[
+        list[str],
+        typer.Argument(
+            help="Path(s) to the file(s) to chunk and add to the collection."
+        ),
     ],
 ) -> None:
     try:
-        _run(lambda: handle_import(collection, file))
+        _run(lambda: handle_import(collection, files))
     except NotFoundError:
         _fail(f"Collection '{collection}' does not exist.")
-    except FileNotFoundError:
-        _fail(f"The file '{file}' was not found.")
-    except UnsupportedTextFileError:
-        _fail(f"The file '{file}' is not a text file.")
 
 
 # ------------------------------------------------------------------------------
