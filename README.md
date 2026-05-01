@@ -195,3 +195,4 @@ Query results include the stored document chunk, its id, distance, and file name
 - quoted glob patterns such as `"*.md"` are treated as literal paths and are not expanded by `chromy`
 - unmatched unquoted globs may behave differently by shell: `zsh` commonly fails before `chromy` starts, while `bash` may pass the literal pattern through depending on shell settings
 - the CLI reports file-specific import failures and continues with the remaining files
+- when importing multiple files in an interactive terminal, the CLI shows a Rich progress bar

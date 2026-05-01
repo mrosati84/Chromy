@@ -6,7 +6,7 @@ from collections.abc import Callable
 from contextlib import redirect_stdout
 from pathlib import Path
 from typing import TypeVar
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from chromy.handlers.count_collection import handle_count_collection
 from chromy.handlers.create_collection import handle_create_collection
@@ -171,6 +171,64 @@ class HandlerTests(unittest.TestCase):
             output,
             "Added 3 records from 'README.md' to collection 'notes'.\n"
             "Imported 1 file(s) successfully; 0 failed.\n",
+        )
+
+    def test_import_data_suppresses_per_file_output_with_progress(self) -> None:
+        progress = MagicMock()
+        progress.__enter__.return_value = progress
+        progress.__exit__.return_value = None
+        progress.console.print = print
+        progress.add_task.return_value = 1
+
+        with (
+            patch("chromy.handlers.import_data.ingest_file", side_effect=[3, 2]),
+            patch(
+                "chromy.handlers.import_data._should_show_progress",
+                return_value=True,
+            ),
+            patch("chromy.handlers.import_data.Progress", return_value=progress),
+        ):
+            exit_code, output = _capture_output(
+                handle_import,
+                "notes",
+                ["romeo_and_juliet.txt", "README.md"],
+            )
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(output, "Imported 2 file(s) successfully; 0 failed.\n")
+
+    def test_import_data_truncates_long_file_names_in_progress(self) -> None:
+        progress = MagicMock()
+        progress.__enter__.return_value = progress
+        progress.__exit__.return_value = None
+        progress.console.print = print
+        progress.add_task.return_value = 1
+
+        with (
+            patch(
+                "chromy.handlers.import_data._get_absolute_path",
+                side_effect=[
+                    "/tmp/this_is_a_very_long_file_name.txt",
+                    self._fixture_path("README.md"),
+                    "/tmp/this_is_a_very_long_file_name.txt",
+                    self._fixture_path("README.md"),
+                ],
+            ),
+            patch("chromy.handlers.import_data._import_one", return_value=3),
+            patch(
+                "chromy.handlers.import_data._should_show_progress",
+                return_value=True,
+            ),
+            patch("chromy.handlers.import_data.Progress", return_value=progress),
+        ):
+            handle_import(
+                "notes",
+                ["this_is_a_very_long_file_name.txt", "README.md"],
+            )
+
+        progress.update.assert_any_call(
+            1,
+            description="Importing [bold]this_is_a_very_lo...[/]...",
         )
 
     def test_query_uses_typed_input(self) -> None:
