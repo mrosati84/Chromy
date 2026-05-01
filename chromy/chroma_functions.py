@@ -9,7 +9,7 @@ from chromadb.api import ClientAPI
 from chromadb.api.types import QueryResult, Where
 from chromadb.errors import NotFoundError
 
-from chromy.embed import EmbeddingRecord
+from chromy.embedding import EmbeddingRecord
 
 
 def _get_client_and_collection(

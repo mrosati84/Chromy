@@ -24,7 +24,7 @@ dependencies = [
 chromy = "chromy.main:main"
 
 [tool.setuptools]
-packages = ["chromy", "chromy.handlers"]
+packages = ["chromy", "chromy.chunking", "chromy.embedding", "chromy.handlers"]
 
 [dependency-groups]
 dev = [
@@ -72,7 +72,7 @@ module = [
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-module = "chromy.chunk_functions"
+module = "chromy.chunking.service"
 disable_error_code = [
     "attr-defined",
 ]

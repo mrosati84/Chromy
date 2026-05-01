@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import cast
 
-import semchunk
+from semchunk import semchunk
 
 
 def chunk_text(text: str, chunk_size: int = 800) -> list[str]:

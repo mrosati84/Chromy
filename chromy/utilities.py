@@ -5,8 +5,8 @@ from pathlib import Path
 from chromadb import QueryResult
 
 from chromy.chroma_functions import add_data, delete_data, has_data_for_file, query_data
-from chromy.chunk_functions import chunk_file
-from chromy.embed import embed
+from chromy.chunking import chunk_file
+from chromy.embedding import embed
 
 
 def ingest_file(collection_name: str, file_path: str) -> int:
