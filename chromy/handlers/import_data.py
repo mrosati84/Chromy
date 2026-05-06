@@ -61,7 +61,7 @@ def _truncate_file_name(file_name: str, max_length: int = 20) -> str:
     if len(file_name) <= max_length:
         return file_name
 
-    return f"{file_name[: max_length - 3]}"
+    return f"{file_name[: max_length - 3]}..."
 
 
 def handle_import(collection: str, files: list[str]) -> int:

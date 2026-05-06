@@ -10,6 +10,7 @@ from click.testing import Result
 from typer.testing import CliRunner
 
 from chromy.cli import app
+from chromy.errors import ChromaPathError
 
 
 class CliTests(unittest.TestCase):
@@ -250,6 +251,19 @@ class CliTests(unittest.TestCase):
 
         self.assertNotEqual(result.exit_code, 0)
         self.assertIn("Missing option", result.output)
+
+    def test_cli_surfaces_chroma_path_errors(self) -> None:
+        with patch(
+            "chromy.handlers.list_collections.list_collections",
+            side_effect=ChromaPathError("configured path is not writable"),
+        ):
+            result = _invoke(["list-collections"])
+
+        self.assertEqual(result.exit_code, 1)
+        self.assertEqual(
+            result.stdout,
+            "Error: configured path is not writable\n",
+        )
 
 
 def _invoke(arguments: Sequence[str]) -> Result:

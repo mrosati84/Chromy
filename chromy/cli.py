@@ -6,6 +6,7 @@ import typer
 from chromadb.errors import InternalError, NotFoundError
 from rich import print
 
+from chromy.errors import ChromaPathError
 from chromy.handlers.count_collection import handle_count_collection
 from chromy.handlers.create_collection import handle_create_collection
 from chromy.handlers.delete_collection import (
@@ -22,7 +23,11 @@ ExitCodeHandler = Callable[[], int]
 
 
 def _run(handler: ExitCodeHandler) -> None:
-    exit_code = handler()
+    try:
+        exit_code = handler()
+    except ChromaPathError as exc:
+        _fail(str(exc))
+
     if exit_code != 0:
         raise typer.Exit(exit_code)
 

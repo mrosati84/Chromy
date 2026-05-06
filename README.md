@@ -89,6 +89,30 @@ You can also run it from the source tree without installing the tool:
 uv run python -m chromy.main --help
 ```
 
+## Chroma storage location
+
+By default, Chromy uses Chroma's default persistent location behavior (a local
+`chroma/` directory based on your current working directory when you run the
+command).
+
+You can override this with `CHROMA_FOLDER`.
+
+- `CHROMA_FOLDER` must point to a **parent directory**.
+- Chromy will store data in `<CHROMA_FOLDER>/chroma`.
+- Relative paths are supported and are resolved from the current working directory.
+- If `CHROMA_FOLDER` is set, it takes precedence over the default behavior.
+- If the configured location is invalid or not writable, the command fails with an explicit error (no fallback to the default location).
+
+Examples:
+
+```bash
+# absolute parent path
+CHROMA_FOLDER=/tmp/chromy-data chromy list-collections
+
+# relative parent path (resolved from current directory)
+CHROMA_FOLDER=.local-data chromy create-collection notes
+```
+
 ## Running Tests
 
 Run the test suite with pytest:
@@ -188,7 +212,8 @@ Query results include the stored document chunk, its id, distance, and file name
 
 ## Notes
 
-- collections are stored in a local persistent Chroma database in the current directory
+- by default, collections are stored in a local persistent Chroma database in the current directory
+- set `CHROMA_FOLDER` to override the parent location; Chromy will use `<CHROMA_FOLDER>/chroma`
 - `import` requires the target collection to already exist
 - `import` accepts one or more file paths
 - unquoted glob patterns such as `*.md` are expanded by the shell before `chromy` starts
