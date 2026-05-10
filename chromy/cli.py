@@ -25,7 +25,8 @@ app = typer.Typer(
         "- By default, Chromy uses Chroma's default persistent location behavior.\n"
         f"- Set {CHROMA_FOLDER_ENV_VAR} to a parent directory to override it.\n"
         f"- Chromy stores data in <{CHROMA_FOLDER_ENV_VAR}>/chroma."
-    )
+    ),
+    invoke_without_command=True,
 )
 
 ExitCodeHandler = Callable[[], int]
@@ -44,6 +45,15 @@ def _run(handler: ExitCodeHandler) -> None:
 def _fail(message: str) -> None:
     print("[bold red]Error[/]:", message)
     raise typer.Exit(1)
+
+
+@app.callback()
+def main(ctx: typer.Context) -> None:
+    """Run the CLI and show help when no command is provided."""
+    if ctx.invoked_subcommand is None:
+        print("[bold red]Error[/]: Missing command.")
+        typer.echo(ctx.get_help())
+        raise typer.Exit(1)
 
 
 # ------------------------------------------------------------------------------

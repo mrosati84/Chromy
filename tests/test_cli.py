@@ -252,6 +252,14 @@ class CliTests(unittest.TestCase):
         self.assertNotEqual(result.exit_code, 0)
         self.assertIn("Missing option", result.output)
 
+    def test_cli_without_arguments_prints_error_and_help(self) -> None:
+        result = _invoke([])
+
+        self.assertEqual(result.exit_code, 1)
+        self.assertIn("Error: Missing command.", result.stdout)
+        self.assertIn("Usage:", result.stdout)
+        self.assertIn("Commands", result.stdout)
+
     def test_cli_help_documents_chroma_folder_env_var(self) -> None:
         result = _invoke(["--help"])
 
