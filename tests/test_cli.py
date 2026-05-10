@@ -95,6 +95,106 @@ class CliTests(unittest.TestCase):
             "The 'notes' collection contains 7 records.\n",
         )
 
+    def test_command_aliases(self) -> None:
+        with self.subTest(alias="lc"):
+            with patch(
+                "chromy.handlers.list_collections.list_collections",
+                return_value=[],
+            ) as mocked:
+                result = _invoke(["lc"])
+
+            mocked.assert_called_once_with()
+            self.assertEqual(result.exit_code, 0)
+            self.assertEqual(result.stdout, "No collections found.\n")
+
+        with self.subTest(alias="cc"):
+            with patch(
+                "chromy.handlers.create_collection.create_collection",
+                return_value="notes",
+            ) as mocked:
+                result = _invoke(["cc", "notes"])
+
+            mocked.assert_called_once_with("notes")
+            self.assertEqual(result.exit_code, 0)
+            self.assertEqual(result.stdout, "Created: collection 'notes'.\n")
+
+        with self.subTest(alias="dc"):
+            with patch(
+                "chromy.handlers.delete_collection.delete_collection",
+            ) as mocked:
+                result = _invoke(["dc", "notes"])
+
+            mocked.assert_called_once_with("notes")
+            self.assertEqual(result.exit_code, 0)
+            self.assertEqual(result.stdout, "Deleted collection 'notes'.\n")
+
+        with self.subTest(alias="c"):
+            with patch(
+                "chromy.handlers.count_collection.count_collection",
+                return_value=7,
+            ) as mocked:
+                result = _invoke(["c", "notes"])
+
+            mocked.assert_called_once_with("notes")
+            self.assertEqual(result.exit_code, 0)
+            self.assertEqual(
+                result.stdout,
+                "The 'notes' collection contains 7 records.\n",
+            )
+
+        with self.subTest(alias="i"):
+            with patch(
+                "chromy.handlers.import_data.ingest_file",
+                return_value=3,
+            ) as mocked:
+                result = _invoke(["i", "notes", "romeo_and_juliet.txt"])
+
+            mocked.assert_called_once_with(
+                "notes",
+                self._fixture_path("romeo_and_juliet.txt"),
+            )
+            self.assertEqual(result.exit_code, 0)
+            self.assertEqual(
+                result.stdout,
+                "Added 3 records from 'romeo_and_juliet.txt' to collection 'notes'.\n"
+                "Imported 1 file(s) successfully; 0 failed.\n",
+            )
+
+        with self.subTest(alias="q"):
+            query_result = {"ids": [["1"]], "documents": [["hello"]]}
+            with (
+                patch(
+                    "chromy.handlers.query.run_query",
+                    return_value=query_result,
+                ) as mocked,
+                patch(
+                    "chromy.handlers.query.format_query_result",
+                    return_value=["1"],
+                ),
+            ):
+                result = _invoke(["q", "notes", "Where is Romeo?"])
+
+            mocked.assert_called_once_with("notes", "Where is Romeo?")
+            self.assertEqual(result.exit_code, 0)
+            self.assertEqual(result.stdout, "1\n")
+
+        with self.subTest(alias="del"):
+            with patch(
+                "chromy.handlers.delete_collection.delete_data",
+                return_value=2,
+            ) as mocked:
+                result = _invoke(
+                    ["del", "notes", "--where", "file_name=play.txt"],
+                )
+
+            mocked.assert_called_once_with("notes", {"file_name": "play.txt"})
+            self.assertEqual(result.exit_code, 0)
+            self.assertEqual(
+                result.stdout,
+                "Deleted 2 record(s) from collection 'notes' where "
+                "file_name=play.txt.\n",
+            )
+
     def test_import_data(self) -> None:
         with patch(
             "chromy.handlers.import_data.ingest_file",
@@ -267,6 +367,19 @@ class CliTests(unittest.TestCase):
         self.assertIn("CHROMA_FOLDER", result.stdout)
         self.assertIn("parent directory", result.stdout)
         self.assertIn("<CHROMA_FOLDER>/chroma", result.stdout)
+
+    def test_cli_help_documents_command_aliases(self) -> None:
+        result = _invoke(["--help"])
+
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("Command aliases", result.stdout)
+        self.assertIn("list-collections: lc", result.stdout)
+        self.assertIn("create-collection: cc", result.stdout)
+        self.assertIn("delete-collection: dc", result.stdout)
+        self.assertIn("count: c", result.stdout)
+        self.assertIn("import: i", result.stdout)
+        self.assertIn("query: q", result.stdout)
+        self.assertIn("delete: del", result.stdout)
 
     def test_cli_surfaces_chroma_path_errors(self) -> None:
         with patch(

@@ -24,7 +24,15 @@ app = typer.Typer(
         "Storage location:\n"
         "- By default, Chromy uses Chroma's default persistent location behavior.\n"
         f"- Set {CHROMA_FOLDER_ENV_VAR} to a parent directory to override it.\n"
-        f"- Chromy stores data in <{CHROMA_FOLDER_ENV_VAR}>/chroma."
+        f"- Chromy stores data in <{CHROMA_FOLDER_ENV_VAR}>/chroma.\n\n"
+        "Command aliases:\n"
+        "- list-collections: lc\n"
+        "- create-collection: cc\n"
+        "- delete-collection: dc\n"
+        "- count: c\n"
+        "- import: i\n"
+        "- query: q\n"
+        "- delete: del"
     ),
     invoke_without_command=True,
 )
@@ -59,9 +67,10 @@ def main(ctx: typer.Context) -> None:
 # ------------------------------------------------------------------------------
 # LIST COLLECTIONS
 # ------------------------------------------------------------------------------
+@app.command("lc", help="Alias for list-collections.")
 @app.command(
     "list-collections",
-    help="List all collections stored in the local Chroma database.",
+    help="List all collections stored in the local Chroma database. Alias: lc.",
 )
 def list_collections() -> None:
     _run(handle_list_collections)
@@ -70,9 +79,10 @@ def list_collections() -> None:
 # ------------------------------------------------------------------------------
 # CREATE A COLLECTION
 # ------------------------------------------------------------------------------
+@app.command("cc", help="Alias for create-collection.")
 @app.command(
     "create-collection",
-    help="Create a collection in the local Chroma database.",
+    help="Create a collection in the local Chroma database. Alias: cc.",
 )
 def create_collection(
     collection: Annotated[
@@ -89,9 +99,10 @@ def create_collection(
 # ------------------------------------------------------------------------------
 # DELETE A COLLECTION
 # ------------------------------------------------------------------------------
+@app.command("dc", help="Alias for delete-collection.")
 @app.command(
     "delete-collection",
-    help="Delete a collection from the local Chroma database.",
+    help="Delete a collection from the local Chroma database. Alias: dc.",
 )
 def delete_collection(
     collection: Annotated[
@@ -108,9 +119,10 @@ def delete_collection(
 # ------------------------------------------------------------------------------
 # COUNT RECORDS
 # ------------------------------------------------------------------------------
+@app.command("c", help="Alias for count.")
 @app.command(
     "count",
-    help="Count records in a collection from the local Chroma database.",
+    help="Count records in a collection from the local Chroma database. Alias: c.",
 )
 def count(
     collection: Annotated[
@@ -127,11 +139,12 @@ def count(
 # ------------------------------------------------------------------------------
 # IMPORT DATA
 # ------------------------------------------------------------------------------
+@app.command("i", help="Alias for import.")
 @app.command(
     "import",
     help=(
         "Chunk, embed, and add one or more files to a collection in the "
-        "local Chroma database."
+        "local Chroma database. Alias: i."
     ),
 )
 def import_data(
@@ -155,7 +168,8 @@ def import_data(
 # ------------------------------------------------------------------------------
 # QUERY
 # ------------------------------------------------------------------------------
-@app.command("query", help="Query a collection with the provided text.")
+@app.command("q", help="Alias for query.")
+@app.command("query", help="Query a collection with the provided text. Alias: q.")
 def query(
     collection: Annotated[
         str,
@@ -175,7 +189,11 @@ def query(
 # ------------------------------------------------------------------------------
 # DELETE DATA
 # ------------------------------------------------------------------------------
-@app.command("delete", help="Delete records from a collection using a metadata filter.")
+@app.command("del", help="Alias for delete.")
+@app.command(
+    "delete",
+    help="Delete records from a collection using a metadata filter. Alias: del.",
+)
 def delete_records(
     collection: Annotated[
         str,
