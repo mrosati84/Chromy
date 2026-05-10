@@ -21,6 +21,7 @@
 ## Coding Style & Naming Conventions
 
 Use Python 3.12+ syntax, type hints, and `from __future__ import annotations`. Follow the current style: 4-space indentation, snake_case functions and modules, PascalCase classes, and Typer command functions in `chromy/cli.py` that delegate to small handler functions. Keep handlers focused on CLI orchestration and user-facing output; place reusable database, chunking, embedding, query, and formatting logic in shared modules. Prefer `rich` output for user-facing CLI messages to stay consistent with the existing commands.
+Docstrings follow Google coding style conventions and are always added to any function.
 
 ## Testing Guidelines
 
