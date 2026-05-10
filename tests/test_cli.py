@@ -252,6 +252,14 @@ class CliTests(unittest.TestCase):
         self.assertNotEqual(result.exit_code, 0)
         self.assertIn("Missing option", result.output)
 
+    def test_cli_help_documents_chroma_folder_env_var(self) -> None:
+        result = _invoke(["--help"])
+
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("CHROMA_FOLDER", result.stdout)
+        self.assertIn("parent directory", result.stdout)
+        self.assertIn("<CHROMA_FOLDER>/chroma", result.stdout)
+
     def test_cli_surfaces_chroma_path_errors(self) -> None:
         with patch(
             "chromy.handlers.list_collections.list_collections",

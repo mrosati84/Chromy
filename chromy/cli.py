@@ -6,6 +6,7 @@ import typer
 from chromadb.errors import InternalError, NotFoundError
 from rich import print
 
+from chromy.chroma_functions import CHROMA_FOLDER_ENV_VAR
 from chromy.errors import ChromaPathError
 from chromy.handlers.count_collection import handle_count_collection
 from chromy.handlers.create_collection import handle_create_collection
@@ -17,7 +18,15 @@ from chromy.handlers.import_data import handle_import
 from chromy.handlers.list_collections import handle_list_collections
 from chromy.handlers.query import handle_query
 
-app = typer.Typer(help="Chromy, local RAG CLI based on Chromadb.")
+app = typer.Typer(
+    help=(
+        "Chromy, local RAG CLI based on Chromadb.\n\n"
+        "Storage location:\n"
+        "- By default, Chromy uses Chroma's default persistent location behavior.\n"
+        f"- Set {CHROMA_FOLDER_ENV_VAR} to a parent directory to override it.\n"
+        f"- Chromy stores data in <{CHROMA_FOLDER_ENV_VAR}>/chroma."
+    )
+)
 
 ExitCodeHandler = Callable[[], int]
 
