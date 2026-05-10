@@ -19,6 +19,27 @@ Chromy is small and simple to use command-line utility for working with a local 
 - Python 3.12+
 - a local environment able to install the project dependencies in `pyproject.toml`
 
+## Libraries
+
+### Runtime libraries
+
+- `chromadb` — persistent vector database used to store collections, embeddings, documents, and metadata.
+- `openai` — dependency used by the embedding stack for model and API integrations.
+- `pymupdf4llm` — extracts text from PDF documents for ingestion.
+- `python-dotenv` — loads environment variables from local `.env` files.
+- `rich` — provides styled terminal output and progress bars.
+- `semchunk` — splits source documents into chunks before embedding.
+- `tiktoken` — tokenization support used during chunking and embedding preparation.
+- `transformers` — model and tokenizer support used by the embedding pipeline.
+- `typer` — powers the CLI commands and argument parsing.
+
+### Development libraries
+
+- `mypy` — static type checking.
+- `nuitka[onefile]` — builds standalone one-file executables.
+- `pytest` — test runner for the project.
+- `ruff` — linting and formatting.
+
 ## Installation
 
 For local development, install the project dependencies with `uv`:
@@ -103,6 +124,8 @@ You can override this with `CHROMA_FOLDER`.
 - If `CHROMA_FOLDER` is set, it takes precedence over the default behavior.
 - If the configured location is invalid or not writable, the command fails with an explicit error (no fallback to the default location).
 
+Setting the variable once in `.zprofile` or `.profile` ensures a consistent usage of the variable.
+
 Examples:
 
 ```bash
@@ -144,14 +167,24 @@ uv run mypy .
 ## Commands
 
 ```text
-list-collections
-create-collection <collection>
-delete-collection <collection>
-count <collection>
-import <collection> <file> [<file> ...]
-query <collection> <query_text>
-delete <collection> --where <condition>=<value>
+list-collections | lc
+create-collection <collection> | cc <collection>
+delete-collection <collection> | dc <collection>
+count <collection> | c <collection>
+import <collection> <file> [<file> ...] | i <collection> <file> [<file> ...]
+query <collection> <query_text> | q <collection> <query_text>
+delete <collection> --where <condition>=<value> | del <collection> --where <condition>=<value>
 ```
+
+### Aliases
+
+- `lc` → `list-collections`
+- `cc` → `create-collection`
+- `dc` → `delete-collection`
+- `c` → `count`
+- `i` → `import`
+- `q` → `query`
+- `del` → `delete`
 
 ### Examples
 
@@ -159,6 +192,8 @@ Create a collection:
 
 ```bash
 chromy create-collection notes
+# alias
+chromy cc notes
 ```
 
 Add one or more files:
@@ -167,36 +202,54 @@ Add one or more files:
 chromy import notes ./docs/example.txt
 chromy import notes ./docs/intro.md ./docs/setup.md
 chromy import notes *.md
+# alias
+chromy i notes ./docs/example.txt
+```
+
+Import a large batch of files with `find`:
+
+```bash
+find ./docs -type f \( -name '*.md' -o -name '*.txt' \) -exec chromy import notes {} +
 ```
 
 Count stored records:
 
 ```bash
 chromy count notes
+# alias
+chromy c notes
 ```
 
 Search the collection:
 
 ```bash
 chromy query notes "How do I configure this project?"
+# alias
+chromy q notes "How do I configure this project?"
 ```
 
 List collections:
 
 ```bash
 chromy list-collections
+# alias
+chromy lc
 ```
 
 Delete a collection:
 
 ```bash
 chromy delete-collection notes
+# alias
+chromy dc notes
 ```
 
 Delete records by metadata:
 
 ```bash
 chromy delete notes --where file_name=example.txt
+# alias
+chromy del notes --where file_name=example.txt
 ```
 
 ## How ingestion works
