@@ -28,10 +28,10 @@ packages = ["chromy", "chromy.chunking", "chromy.embedding", "chromy.handlers"]
 
 [dependency-groups]
 dev = [
-    "mypy>=1.18.2",
+    "mypy>=1.20.2",
     "nuitka[onefile]>=4.0.8",
-    "pytest>=9.0.2",
-    "ruff>=0.14.8",
+    "pytest>=9.0.3",
+    "ruff>=0.15.11",
 ]
 
 [tool.ruff]
