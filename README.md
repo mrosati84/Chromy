@@ -4,14 +4,18 @@
     <img src="logo.png" width=300 />
 </div>
 
-Chromy is small and simple to use command-line utility for working with a local Chroma database. It lets you create collections, ingest files as chunked embeddings, and run similarity queries against stored documents. It integrates perfectly with agentic coding tools via simple skills (see an [example](./skills/chromy/SKILL.md) in the `skills` directory).
+Chromy is a small, simple command-line utility for working with a local Chroma
+database. It lets you create collections, ingest text files as chunked
+embeddings, and run similarity queries against stored documents. It can also be
+used by agentic coding tools through a skill (see the
+[included example](./skills/chromy/SKILL.md)).
 
 ## What it does
 
 - manages local Chroma collections
 - chunks files with `semchunk`
 - generates embeddings with Chroma's default embedding function
-- stores chunk text plus source file metadata
+- stores chunk text plus the source file's absolute path in metadata
 - queries collections and prints readable results
 
 ## Requirements
@@ -24,13 +28,16 @@ Chromy is small and simple to use command-line utility for working with a local 
 ### Runtime libraries
 
 - `chromadb` — persistent vector database used to store collections, embeddings, documents, and metadata.
-- `openai` — dependency used by the embedding stack for model and API integrations.
-- `pymupdf4llm` — extracts text from PDF documents for ingestion.
+- `openai` — declared for model and API integrations; the CLI does not call the
+  OpenAI API directly.
+- `pymupdf4llm` — declared for PDF-to-Markdown support; PDF ingestion is not yet
+  wired into the text-only `import` command.
 - `python-dotenv` — loads environment variables from local `.env` files.
 - `rich` — provides styled terminal output and progress bars.
 - `semchunk` — splits source documents into chunks before embedding.
 - `tiktoken` — tokenization support used during chunking and embedding preparation.
-- `transformers` — model and tokenizer support used by the embedding pipeline.
+- `transformers` — declared for model and tokenizer support; the CLI's current
+  embedding implementation uses Chroma's default embedding function.
 - `typer` — powers the CLI commands and argument parsing.
 
 ### Development libraries
@@ -85,7 +92,7 @@ To install from a built wheel instead:
 
 ```bash
 uv build
-uv tool install dist/chromy-1.0.0-py3-none-any.whl
+uv tool install dist/chromy-1.1.0-py3-none-any.whl
 ```
 
 During development, install the tool in editable mode so changes in the working
@@ -196,7 +203,7 @@ chromy create-collection notes
 chromy cc notes
 ```
 
-Add one or more files:
+Add one or more text files:
 
 ```bash
 chromy import notes ./docs/example.txt
@@ -247,9 +254,9 @@ chromy dc notes
 Delete records by metadata:
 
 ```bash
-chromy delete notes --where file_name=example.txt
+chromy delete notes --where file_name=/absolute/path/to/docs/example.txt
 # alias
-chromy del notes --where file_name=example.txt
+chromy del notes --where file_name=/absolute/path/to/docs/example.txt
 ```
 
 ## How ingestion works
@@ -258,17 +265,21 @@ When you run `import`, each file is:
 
 1. read from disk
 2. split into chunks
-3. embedded
-4. inserted into the target collection with the original file path stored as metadata
+3. embedded with Chroma's default embedding function
+4. inserted into the target collection with the source file's absolute path stored
+   in the `file_name` metadata field
 
-Query results include the stored document chunk, its id, distance, and file name when available.
+Importing the same absolute path again replaces that file's existing records in
+the collection. Query results include the stored document chunk, its ID,
+distance, and `file_name` metadata when available.
 
 ## Notes
 
 - by default, collections are stored in a local persistent Chroma database in the current directory
 - set `CHROMA_FOLDER` to override the parent location; Chromy will use `<CHROMA_FOLDER>/chroma`
 - `import` requires the target collection to already exist
-- `import` accepts one or more file paths
+- `import` accepts one or more text-file paths; directories, missing files, and
+  files detected as non-text are reported as failures
 - unquoted glob patterns such as `*.md` are expanded by the shell before `chromy` starts
 - quoted glob patterns such as `"*.md"` are treated as literal paths and are not expanded by `chromy`
 - unmatched unquoted globs may behave differently by shell: `zsh` commonly fails before `chromy` starts, while `bash` may pass the literal pattern through depending on shell settings
