@@ -1,14 +1,29 @@
-# Chromy
-
 <div align="center">
-    <img src="logo.png" width=300 />
+  <img src="logo.png" width="300" alt="Chromy logo: a detective evidence board" />
+
+  # Chromy
+
+  **A small local retrieval-augmented generation (RAG) CLI powered by Chroma.**
 </div>
 
-Chromy is a small, simple command-line utility for working with a local Chroma
+Chromy is a command-line utility for working with a local Chroma vector
 database. It lets you create collections, ingest text files as chunked
-embeddings, and run similarity queries against stored documents. It can also be
-used by agentic coding tools through a skill (see the
+embeddings, and run semantic similarity queries against stored documents. All
+data is persisted locally, so a hosted database is not required. Chromy can also
+be used by agentic coding tools through a skill (see the
 [included example](./skills/chromy/SKILL.md)).
+
+## Contents
+
+- [What it does](#what-it-does)
+- [Technology](#technology)
+- [Codebase structure](#codebase-structure)
+- [Installation](#installation)
+- [Running the CLI](#running-the-cli)
+- [Configuration](#configuration)
+- [Commands](#commands)
+- [How ingestion works](#how-ingestion-works)
+- [Local development](#local-development)
 
 ## What it does
 
@@ -23,7 +38,14 @@ used by agentic coding tools through a skill (see the
 - Python 3.12+
 - a local environment able to install the project dependencies in `pyproject.toml`
 
-## Libraries
+## Technology
+
+Chromy is a Python 3.12+ application packaged with setuptools and exposed as a
+[Typer](https://typer.tiangolo.com/) command-line application. It stores vectors
+in a persistent local [Chroma](https://www.trychroma.com/) database, uses
+`semchunk` to split input, and uses Chroma's default embedding function to turn
+chunks into vectors. `uv.lock` provides reproducible dependency resolution for
+development and builds.
 
 ### Runtime libraries
 
@@ -47,11 +69,40 @@ used by agentic coding tools through a skill (see the
 - `pytest` — test runner for the project.
 - `ruff` — linting and formatting.
 
+## Codebase structure
+
+```text
+.
+├── chromy/
+│   ├── main.py                  # console entrypoint and .env loading
+│   ├── cli.py                   # Typer commands, aliases, and CLI error handling
+│   ├── chroma_functions.py      # Chroma client and collection/data operations
+│   ├── utilities.py             # ingestion, querying, and text-file detection
+│   ├── output.py                # Rich terminal formatting
+│   ├── errors.py                # shared application exceptions
+│   ├── chunking/service.py      # semantic text chunking
+│   ├── embedding/service.py     # Chroma default embedding integration
+│   └── handlers/                # command-specific orchestration
+├── skills/chromy/SKILL.md       # example coding-agent integration
+├── tests/                       # pytest unit tests
+├── pyproject.toml               # package metadata and tool configuration
+├── uv.lock                      # locked dependency graph
+├── romeo_and_juliet.txt         # sample text for manual runs and tests
+└── logo.png                     # project logo used above
+```
+
+The usual execution path is `main.py` → `cli.py` → a command handler. Handlers
+coordinate reusable operations from `utilities.py` and `chroma_functions.py`;
+chunking and embedding remain isolated in their respective service modules.
+
 ## Installation
 
-For local development, install the project dependencies with `uv`:
+Clone the repository, enter it, and install the locked runtime and development
+dependencies with [`uv`](https://docs.astral.sh/uv/):
 
 ```bash
+git clone <repository-url>
+cd Chromy
 uv sync
 ```
 
@@ -117,7 +168,18 @@ You can also run it from the source tree without installing the tool:
 uv run python -m chromy.main --help
 ```
 
-## Chroma storage location
+## Configuration
+
+`chromy.main` loads a local `.env` file via `python-dotenv`. No API key is
+required for the current local embedding and storage workflow. If you want to
+keep the database outside the working directory, add the optional setting below
+to `.env` (which should remain uncommitted):
+
+```dotenv
+CHROMA_FOLDER=/absolute/path/to/a/parent-directory
+```
+
+### Chroma storage location
 
 By default, Chromy uses Chroma's default persistent location behavior (a local
 `chroma/` directory based on your current working directory when you run the
@@ -143,7 +205,20 @@ CHROMA_FOLDER=/tmp/chromy-data chromy list-collections
 CHROMA_FOLDER=.local-data chromy create-collection notes
 ```
 
-## Running Tests
+## Local development
+
+After running `uv sync`, commands can be executed in the managed environment
+without activating its virtual environment. A typical validation cycle is:
+
+```bash
+uv run pytest -q
+uv run ruff check .
+uv run ruff format --check .
+uv run mypy chromy tests
+uv build
+```
+
+### Running tests
 
 Run the test suite with pytest:
 
@@ -151,7 +226,7 @@ Run the test suite with pytest:
 uv run pytest -q
 ```
 
-## Development Checks
+### Development checks
 
 Run Ruff linting:
 
@@ -168,7 +243,7 @@ uv run ruff format --check .
 Run static type checking with mypy:
 
 ```bash
-uv run mypy .
+uv run mypy chromy tests
 ```
 
 ## Commands
