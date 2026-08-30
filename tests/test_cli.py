@@ -32,7 +32,7 @@ class CliTests(unittest.TestCase):
         with patch(
             "chromy.handlers.list_collections.list_collections",
             return_value=["books", "code"],
-        ): 
+        ):
             result = _invoke(["list-collections"])
 
         self.assertEqual(result.exit_code, 0)
@@ -380,6 +380,19 @@ class CliTests(unittest.TestCase):
         self.assertIn("import: i", result.stdout)
         self.assertIn("query: q", result.stdout)
         self.assertIn("delete: del", result.stdout)
+
+    def test_cli_dash_h_matches_dash_dash_help(self) -> None:
+        help_result = _invoke(["--help"])
+        short_result = _invoke(["-h"])
+
+        self.assertEqual(short_result.exit_code, 0)
+        self.assertEqual(short_result.stdout, help_result.stdout)
+
+    def test_command_dash_h_shows_command_help(self) -> None:
+        result = _invoke(["count", "-h"])
+
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("Usage:", result.stdout)
 
     def test_cli_surfaces_chroma_path_errors(self) -> None:
         with patch(

@@ -34,6 +34,7 @@ app = typer.Typer(
         "- query: q\n"
         "- delete: del"
     ),
+    context_settings={"help_option_names": ["-h", "--help"]},
     invoke_without_command=True,
 )
 
