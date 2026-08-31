@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import TypeVar
 from unittest.mock import MagicMock, patch
 
+from chromy.errors import EmbeddingFunctionError
 from chromy.handlers.count_collection import handle_count_collection
 from chromy.handlers.create_collection import handle_create_collection
 from chromy.handlers.delete_collection import (
@@ -40,14 +41,20 @@ class HandlerTests(unittest.TestCase):
     def test_list_collections_prints_collection_names(self) -> None:
         with patch(
             "chromy.handlers.list_collections.list_collections",
-            return_value=["notes", "plays"],
+            return_value=[
+                ("notes", "default"),
+                ("plays", "sentence-transformers:my-model"),
+            ],
         ):
             exit_code, output = _capture_output(
                 handle_list_collections,
             )
 
         self.assertEqual(exit_code, 0)
-        self.assertEqual(output, "· notes\n· plays\n")
+        self.assertIn("notes", output)
+        self.assertIn("plays", output)
+        self.assertIn("default", output)
+        self.assertIn("sentence-transformers:my-model", output)
 
     def test_create_collection_uses_typed_input(self) -> None:
         with patch(
@@ -59,9 +66,40 @@ class HandlerTests(unittest.TestCase):
                 "notes",
             )
 
-        create_collection.assert_called_once_with("notes")
+        create_collection.assert_called_once_with(
+            "notes",
+            model="default",
+            max_tokens=None,
+        )
         self.assertEqual(exit_code, 0)
-        self.assertEqual(output, "Created: collection 'notes'.\n")
+        self.assertEqual(
+            output,
+            "Created: collection 'notes' with embedding model 'default'.\n",
+        )
+
+    def test_create_collection_passes_model_and_max_tokens(self) -> None:
+        with patch(
+            "chromy.handlers.create_collection.create_collection",
+            return_value="notes",
+        ) as create_collection:
+            exit_code, output = _capture_output(
+                handle_create_collection,
+                "notes",
+                "sentence-transformers:mini",
+                512,
+            )
+
+        create_collection.assert_called_once_with(
+            "notes",
+            model="sentence-transformers:mini",
+            max_tokens=512,
+        )
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(
+            output,
+            "Created: collection 'notes' with embedding model "
+            "'sentence-transformers:mini'.\n",
+        )
 
     def test_delete_collection_uses_typed_input(self) -> None:
         with patch("chromy.handlers.delete_collection.delete_collection") as delete:
@@ -88,11 +126,27 @@ class HandlerTests(unittest.TestCase):
         self.assertEqual(exit_code, 0)
         self.assertEqual(output, "The 'notes' collection contains 7 records.\n")
 
+    def test_import_data_fails_fast_when_model_context_unavailable(self) -> None:
+        with (
+            patch(
+                "chromy.handlers.import_data.get_collection_embedding_context",
+                side_effect=EmbeddingFunctionError("no token budget"),
+            ),
+            self.assertRaises(EmbeddingFunctionError),
+        ):
+            _capture_output(handle_import, "notes", ["romeo_and_juliet.txt"])
+
     def test_import_data_uses_typed_input(self) -> None:
-        with patch(
-            "chromy.handlers.import_data.ingest_file",
-            return_value=3,
-        ) as ingest_file:
+        with (
+            patch(
+                "chromy.handlers.import_data.get_collection_embedding_context",
+                return_value=("EMBEDDER", 204),
+            ),
+            patch(
+                "chromy.handlers.import_data.ingest_file",
+                return_value=3,
+            ) as ingest_file,
+        ):
             exit_code, output = _capture_output(
                 handle_import,
                 "notes",
@@ -102,6 +156,8 @@ class HandlerTests(unittest.TestCase):
         ingest_file.assert_called_once_with(
             "notes",
             self._fixture_path("romeo_and_juliet.txt"),
+            embedding_function="EMBEDDER",
+            chunk_size=204,
         )
         self.assertEqual(exit_code, 0)
         self.assertEqual(
@@ -111,10 +167,16 @@ class HandlerTests(unittest.TestCase):
         )
 
     def test_import_data_continues_after_missing_file(self) -> None:
-        with patch(
-            "chromy.handlers.import_data.ingest_file",
-            return_value=3,
-        ) as ingest_file:
+        with (
+            patch(
+                "chromy.handlers.import_data.get_collection_embedding_context",
+                return_value=("EMBEDDER", 204),
+            ),
+            patch(
+                "chromy.handlers.import_data.ingest_file",
+                return_value=3,
+            ) as ingest_file,
+        ):
             exit_code, output = _capture_output(
                 handle_import,
                 "notes",
@@ -124,6 +186,8 @@ class HandlerTests(unittest.TestCase):
         ingest_file.assert_called_once_with(
             "notes",
             self._fixture_path("romeo_and_juliet.txt"),
+            embedding_function="EMBEDDER",
+            chunk_size=204,
         )
         self.assertEqual(exit_code, 1)
         self.assertEqual(
@@ -134,9 +198,15 @@ class HandlerTests(unittest.TestCase):
         )
 
     def test_import_data_rejects_non_text_files(self) -> None:
-        with patch(
-            "chromy.handlers.import_data.is_probably_text_file",
-            return_value=False,
+        with (
+            patch(
+                "chromy.handlers.import_data.get_collection_embedding_context",
+                return_value=("EMBEDDER", 204),
+            ),
+            patch(
+                "chromy.handlers.import_data.is_probably_text_file",
+                return_value=False,
+            ),
         ):
             exit_code, output = _capture_output(
                 handle_import,
@@ -152,10 +222,16 @@ class HandlerTests(unittest.TestCase):
         )
 
     def test_import_data_deduplicates_files(self) -> None:
-        with patch(
-            "chromy.handlers.import_data.ingest_file",
-            return_value=3,
-        ) as ingest_file:
+        with (
+            patch(
+                "chromy.handlers.import_data.get_collection_embedding_context",
+                return_value=("EMBEDDER", 204),
+            ),
+            patch(
+                "chromy.handlers.import_data.ingest_file",
+                return_value=3,
+            ) as ingest_file,
+        ):
             exit_code, output = _capture_output(
                 handle_import,
                 "notes",
@@ -165,6 +241,8 @@ class HandlerTests(unittest.TestCase):
         ingest_file.assert_called_once_with(
             "notes",
             self._fixture_path("README.md"),
+            embedding_function="EMBEDDER",
+            chunk_size=204,
         )
         self.assertEqual(exit_code, 0)
         self.assertEqual(
@@ -182,6 +260,10 @@ class HandlerTests(unittest.TestCase):
 
         with (
             patch("chromy.handlers.import_data.ingest_file", side_effect=[3, 2]),
+            patch(
+                "chromy.handlers.import_data.get_collection_embedding_context",
+                return_value=("EMBEDDER", 204),
+            ),
             patch(
                 "chromy.handlers.import_data._should_show_progress",
                 return_value=True,
@@ -215,6 +297,10 @@ class HandlerTests(unittest.TestCase):
                 ],
             ),
             patch("chromy.handlers.import_data._import_one", return_value=3),
+            patch(
+                "chromy.handlers.import_data.get_collection_embedding_context",
+                return_value=("EMBEDDER", 204),
+            ),
             patch(
                 "chromy.handlers.import_data._should_show_progress",
                 return_value=True,

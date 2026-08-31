@@ -14,6 +14,8 @@ from rich.progress import (
     TextColumn,
 )
 
+from chromy.chroma_functions import get_collection_embedding_context
+from chromy.embedding import Embedder
 from chromy.errors import UnsupportedTextFileError
 from chromy.utilities import ingest_file
 
@@ -41,7 +43,13 @@ def _get_absolute_path(file: str) -> str:
     return str(file_path.resolve())
 
 
-def _import_one(collection: str, file: str) -> int:
+def _import_one(
+    collection: str,
+    file: str,
+    *,
+    embedding_function: Embedder,
+    chunk_size: int,
+) -> int:
     absolute_path = _get_absolute_path(file)
 
     if not Path(absolute_path).is_file():
@@ -50,7 +58,12 @@ def _import_one(collection: str, file: str) -> int:
     if not is_probably_text_file(absolute_path):
         raise UnsupportedTextFileError()
 
-    return ingest_file(collection, absolute_path)
+    return ingest_file(
+        collection,
+        absolute_path,
+        embedding_function=embedding_function,
+        chunk_size=chunk_size,
+    )
 
 
 def _should_show_progress(file_count: int) -> bool:
@@ -95,12 +108,23 @@ def handle_import(collection: str, files: list[str]) -> int:
     ) as progress:
         task_id = progress.add_task("Importing files...", total=len(unique_files))
 
+        if not unique_files:
+            progress.console.print("Imported 0 file(s) successfully; 0 failed.")
+            return SUCCESS_EXIT_CODE
+
+        embedding_function, chunk_size = get_collection_embedding_context(collection)
+
         for file in unique_files:
             file_name = _truncate_file_name(Path(file).name)
             description = f"Importing [bold]{file_name}[/]..."
             progress.update(task_id, description=description)
             try:
-                records_added = _import_one(collection, file)
+                records_added = _import_one(
+                    collection,
+                    file,
+                    embedding_function=embedding_function,
+                    chunk_size=chunk_size,
+                )
                 successful_imports += 1
                 if not show_progress:
                     progress.console.print(
