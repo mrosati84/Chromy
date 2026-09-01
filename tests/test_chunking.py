@@ -9,20 +9,7 @@ from chromy.chunking import chunk_file, chunk_text
 
 
 class ChunkingTests(unittest.TestCase):
-    def test_chunk_text_derives_size_from_embedding_budget_by_default(self) -> None:
-        with (
-            patch(
-                "chromy.chunking.service.embedding_budget_tokens", return_value=42
-            ) as budget,
-            patch("chromy.chunking.service.semchunk") as semchunk_mock,
-        ):
-            chunk_text("hello world")
-
-        budget.assert_called_once_with()
-        semchunk_mock.chunkerify.assert_called_once_with("gpt-4", 42)
-        semchunk_mock.chunkerify.return_value.assert_called_once_with("hello world")
-
-    def test_chunk_text_respects_explicit_chunk_size(self) -> None:
+    def test_chunk_text_uses_given_chunk_size(self) -> None:
         with patch("chromy.chunking.service.semchunk") as semchunk_mock:
             chunk_text("hello world", chunk_size=7)
 
@@ -38,9 +25,9 @@ class ChunkingTests(unittest.TestCase):
             with patch(
                 "chromy.chunking.service.chunk_text", return_value=["chunked"]
             ) as chunk_text_mock:
-                result = chunk_file(file_path)
+                result = chunk_file(file_path, chunk_size=7)
 
-            chunk_text_mock.assert_called_once_with("some contents", None)
+            chunk_text_mock.assert_called_once_with("some contents", 7)
             self.assertEqual(result, ["chunked"])
         finally:
             os.unlink(file_path)

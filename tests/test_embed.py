@@ -41,7 +41,7 @@ class EmbedTest(unittest.TestCase):
 
     def test_embedding_budget_tokens_scales_default_model_by_headroom(self) -> None:
         self.assertEqual(
-            embedding_budget_tokens(),
+            embedding_budget_tokens(DefaultEmbeddingFunction()),
             max(1, int(DefaultEmbeddingFunction().max_tokens() * MODEL_HEADROOM)),
         )
 

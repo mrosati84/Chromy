@@ -24,7 +24,7 @@ class EmbeddingRecord(TypedDict):
 
 
 def embedding_budget_tokens(
-    embedding_function: Embedder | None = None,
+    embedding_function: Embedder,
     max_tokens: int | None = None,
 ) -> int:
     """
@@ -36,8 +36,7 @@ def embedding_budget_tokens(
     the stored ``chromy_max_tokens`` collection metadata) is used instead.
 
     Args:
-        embedding_function (EmbeddingFunction | None): The active embedder;
-            defaults to the default ONNX MiniLM embedder.
+        embedding_function (EmbeddingFunction): The active embedder.
         max_tokens (int | None): An explicit token limit, used when the
             embedder does not report one.
 
@@ -48,7 +47,6 @@ def embedding_budget_tokens(
         int: Maximum number of (tiktoken-counted) tokens per chunk.
     """
 
-    embedding_function = embedding_function or DefaultEmbeddingFunction()
     model_limit = model_max_tokens(embedding_function)
     if model_limit is None:
         model_limit = max_tokens
