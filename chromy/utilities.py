@@ -6,15 +6,34 @@ from chromadb import QueryResult
 
 from chromy.chroma_functions import add_data, delete_data, has_data_for_file, query_data
 from chromy.chunking import chunk_file
-from chromy.embedding import embed
+from chromy.embedding import Embedder, embed
 
 
-def ingest_file(collection_name: str, file_path: str) -> int:
+def ingest_file(
+    collection_name: str,
+    file_path: str,
+    *,
+    embedding_function: Embedder,
+    chunk_size: int,
+) -> int:
+    """
+    Chunk, embed, and add the file at ``file_path`` to ``collection_name``.
+
+    Args:
+        collection_name (str): The target collection.
+        file_path (str): The file to ingest.
+        embedding_function (EmbeddingFunction): The collection's embedder.
+        chunk_size (int): The per-chunk token budget for the collection's model.
+
+    Returns:
+        int: The number of records added.
+    """
+
     if has_data_for_file(collection_name, file_path):
         delete_data(collection_name, {"file_name": file_path})
 
-    chunks = chunk_file(file_path)
-    embeddings = embed(chunks)
+    chunks = chunk_file(file_path, chunk_size=chunk_size)
+    embeddings = embed(chunks, embedding_function=embedding_function)
     add_data(collection_name, embeddings, file_path)
     return len(embeddings)
 
